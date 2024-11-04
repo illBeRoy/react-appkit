@@ -1,0 +1,24 @@
+{
+  "name": "@react-appkit/compiler",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "bun build src/build.ts --target node --outdir dist --packages external"
+  },
+  "bin": {
+    "compiler-build": "dist/build.js"
+  },
+  "devDependencies": {
+    "@react-appkit/eslint-config": "workspace:*",
+    "@types/bun": "latest",
+    "@types/node": "^22.8.7",
+    "eslint": "^9.14.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "vite": "^5.4.10"
+  }
+}
