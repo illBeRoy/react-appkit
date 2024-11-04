@@ -1,4 +1,4 @@
-import { Link } from '@react-appkit/runtime/routing';
+import { Link } from '@react-appkit/sdk/routing';
 
 export default function Window() {
   return (

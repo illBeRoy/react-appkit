@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "bun build src/build.ts --target node --outdir dist --packages external"
+    "build": "bun build src/build.ts src/dev.ts --target node --outdir dist --packages external"
   },
+  "files": [
+    "dist",
+    "template"
+  ],
   "bin": {
-    "compiler-build": "dist/build.js"
+    "react-appkit-dev": "dist/dev.js",
+    "react-appkit-build": "dist/build.js"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
@@ -19,6 +24,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.3",
+    "electron": "^33.0.2",
     "vite": "^5.4.10"
   }
 }

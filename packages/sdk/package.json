@@ -1,20 +1,24 @@
 {
-  "name": "@react-appkit/runtime",
+  "name": "@react-appkit/sdk",
   "version": "1.0.0",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./entrypoints/main": "./src/main.ts"
+    "./routing": "./src/routing.ts"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
     "@types/bun": "latest",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "eslint": "^9.14.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "electron": "^33.0.2"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0"
   }
 }
