@@ -3,7 +3,29 @@
   <head>
     <title>React AppKit</title>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'sha256-kCreEE6kzLZI4ZEOzoci0BqaI9O7+OpcFV05otdVHrM='">
+    <script>
+      window.require = (module) => {
+        if (module.startsWith('@react-appkit/runtime/main/api/')) {
+          const apiNamespace = module.split('/').pop();
+          return new Proxy(
+            {},
+            {
+              get:
+                (_, fnName) =>
+                  (...params) =>
+                    window.__invokeMainProcessApi__(
+                      `${apiNamespace}.${String(fnName)}`,
+                      ...params,
+                    ),
+            },
+          );
+        }
+
+        throw new Error(`Module ${module} not found. Was it not bundled?`);
+      };
+    </script>
   </head>
   <body>
     <div id="root"></div>

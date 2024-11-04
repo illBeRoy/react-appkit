@@ -3,17 +3,23 @@ import path from 'node:path';
 import * as vite from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import { createWindowsMap } from './utils/createWindowsMap';
-import { virtual } from './utils/vite';
+import {
+  externalizeMainProcessDeps,
+  modulePolyfill,
+  virtualFiles,
+} from './utils/vite';
 import { templateFile } from './utils/templateFile';
+import externalGlobals from 'rollup-plugin-external-globals';
 
 async function buildMain(workDir: string) {
   await vite.build({
     root: workDir,
     plugins: [
-      virtual({
+      virtualFiles({
         [path.join(workDir, 'entrypoint.ts')]:
           await templateFile('main/entrypoint.ts'),
       }),
+      externalizeMainProcessDeps(),
     ],
     build: {
       outDir: path.resolve('dist', 'main'),
@@ -24,7 +30,7 @@ async function buildMain(workDir: string) {
         fileName: 'entrypoint',
       },
       rollupOptions: {
-        external: ['electron'],
+        external: ['electron', 'node:path'],
         output: {
           manualChunks: {},
         },
@@ -53,9 +59,9 @@ async function buildRenderer(workDir: string) {
 
   await vite.build({
     root: workDir,
-    base: '',
+    base: './',
     plugins: [
-      virtual({
+      virtualFiles({
         './App.tsx': appTsx,
         './entrypoint.tsx': await templateFile('renderer/entrypoint.tsx'),
         './index.html': await templateFile('renderer/index.html'),
@@ -63,9 +69,40 @@ async function buildRenderer(workDir: string) {
       viteReact(),
     ],
     build: {
+      assetsDir: './',
       outDir: path.resolve('dist', 'renderer'),
       rollupOptions: {
         input: './index.html',
+        external: [/^@react-appkit\/runtime\/main\/api\/.+/],
+        output: {
+          format: 'cjs',
+          manualChunks: {},
+        },
+      },
+    },
+  });
+}
+
+async function buildPreload(workDir: string) {
+  await vite.build({
+    root: workDir,
+    plugins: [
+      virtualFiles({
+        [path.join(workDir, 'preload.ts')]: await templateFile(
+          'renderer/preload.ts',
+        ),
+      }),
+      externalizeMainProcessDeps(),
+    ],
+    build: {
+      outDir: path.resolve('dist', 'preload'),
+      target: 'node20',
+      lib: {
+        formats: ['cjs'],
+        entry: './preload.ts',
+        fileName: 'index',
+      },
+      rollupOptions: {
         output: {
           manualChunks: {},
         },
@@ -75,7 +112,11 @@ async function buildRenderer(workDir: string) {
 }
 
 export async function build(workDir: string) {
-  await Promise.all([buildMain(workDir), buildRenderer(workDir)]);
+  await Promise.all([
+    buildMain(workDir),
+    buildRenderer(workDir),
+    buildPreload(workDir),
+  ]);
 }
 
 if (require.main === module) {

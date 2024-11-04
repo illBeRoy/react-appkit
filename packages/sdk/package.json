@@ -4,6 +4,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./app": "./src/app.ts",
+    "./window": "./src/window.tsx",
     "./routing": "./src/routing.ts"
   },
   "devDependencies": {
@@ -17,6 +19,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@react-appkit/runtime": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.27.0"

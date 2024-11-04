@@ -12,7 +12,10 @@ export async function dev(workDir: string) {
     'cli.js',
   );
 
-  await spawn(electronExecutable, ['.'], { cwd: workDir });
+  await spawn(electronExecutable, ['.'], {
+    cwd: workDir,
+    stdio: 'inherit',
+  });
 }
 
 if (require.main === module) {

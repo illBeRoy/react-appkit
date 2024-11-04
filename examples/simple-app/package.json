@@ -2,6 +2,10 @@
   "name": "@react-appkit/simple-app-example",
   "private": true,
   "main": "dist/main/entrypoint.js",
+  "scripts": {
+    "dev": "react-appkit-build && react-appkit-dev",
+    "dev:devtools": "react-appkit-build && DEV_TOOLS=true react-appkit-dev"
+  },
   "devDependencies": {
     "@react-appkit/compiler": "workspace:*",
     "@react-appkit/eslint-config": "workspace:*",
