@@ -1,9 +1,8 @@
 import path from 'node:path';
+import type { ApisMap } from './exposedApis';
 
-export async function exposedApis() {
+export async function exposeBuiltinApis(apisMap: ApisMap) {
   const apiModules = import.meta.glob('./api/*.ts');
-
-  const apisMap = new Map<string, (...args: unknown[]) => unknown>();
 
   await Promise.all(
     Object.entries(apiModules).map(async ([filename, module]) => {
@@ -20,6 +19,4 @@ export async function exposedApis() {
       });
     }),
   );
-
-  return apisMap;
 }
