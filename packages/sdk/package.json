@@ -6,7 +6,7 @@
     ".": "./src/index.ts",
     "./app": "./src/app.ts",
     "./window": "./src/window.tsx",
-    "./routing": "./src/routing.ts"
+    "./routing": "./src/routing.tsx"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
