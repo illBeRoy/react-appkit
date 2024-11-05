@@ -3,7 +3,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 
 const callerContext = new AsyncLocalStorage<IpcMainInvokeEvent>();
 
-export const runWithCallerContext = (
+export const attachCallerContextWhenCallingApiFromWindow = (
   event: IpcMainInvokeEvent,
   fn: (...args: unknown[]) => unknown,
   ...args: unknown[]

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { app, BrowserWindow, ipcMain } from 'electron';
 import { exposedApis } from '../main/exposeApiToRenderer';
-import { runWithCallerContext } from '../main/context';
+import { attachCallerContextWhenCallingApiFromWindow } from '../main/context';
 
 app.whenReady().then(async () => {
   const apis = await exposedApis();
@@ -12,7 +12,7 @@ app.whenReady().then(async () => {
       const fn = apis.get(fnName);
 
       if (fn) {
-        runWithCallerContext(event, fn, ...params);
+        attachCallerContextWhenCallingApiFromWindow(event, fn, ...params);
       }
     },
   );
