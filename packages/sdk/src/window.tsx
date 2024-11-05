@@ -3,18 +3,17 @@ import {
   setSize,
   setTitle,
   setPosition,
-  centerWindow,
   setResizable,
   setMovable,
   setAlwaysOnTop,
   setFullScreen,
   setShowInTaskbar,
-  close,
-  show,
-  hide,
   setClosable,
   setMinimizable,
   setMaximizable,
+  close,
+  show,
+  hide,
 } from '@react-appkit/runtime/main/api/window';
 
 const InWindowContext = createContext<boolean>(false);
@@ -66,18 +65,24 @@ const WindowTitle = ({
     if (typeof closable === 'boolean') {
       setClosable(closable);
     }
+
+    return () => setClosable(true);
   }, [closable]);
 
   useEffect(() => {
     if (typeof minimizable === 'boolean') {
       setMinimizable(minimizable);
     }
+
+    return () => setMinimizable(true);
   }, [minimizable]);
 
   useEffect(() => {
     if (typeof maximizable === 'boolean') {
       setMaximizable(maximizable);
     }
+
+    return () => setMaximizable(true);
   }, [maximizable]);
 
   return null;
@@ -114,25 +119,17 @@ const WindowPosition = ({ x, y, origin }: WindowPositionProps) => {
   return null;
 };
 
-export const WindowCenter = () => {
-  useWindowContext();
-
-  useEffect(() => {
-    centerWindow();
-  }, []);
-
-  return null;
-};
-
 export interface WindowResizableProps {
   resizable: boolean;
 }
 
-export const WindowResizable = ({ resizable }: WindowResizableProps) => {
+const WindowResizable = ({ resizable }: WindowResizableProps) => {
   useWindowContext();
 
   useEffect(() => {
     setResizable(resizable);
+
+    return () => setResizable(true);
   }, [resizable]);
 
   return null;
@@ -142,24 +139,25 @@ export interface WindowMovableProps {
   movable: boolean;
 }
 
-export const WindowMovable = ({ movable }: WindowMovableProps) => {
+const WindowMovable = ({ movable }: WindowMovableProps) => {
   useWindowContext();
 
   useEffect(() => {
     setMovable(movable);
+
+    return () => setMovable(true);
   }, [movable]);
 
   return null;
 };
 
-export const WindowAlwaysOnTop = () => {
+const WindowAlwaysOnTop = () => {
   useWindowContext();
 
   useEffect(() => {
     setAlwaysOnTop(true);
-    return () => {
-      setAlwaysOnTop(false);
-    };
+
+    return () => setAlwaysOnTop(false);
   }, []);
 
   return null;
@@ -170,9 +168,8 @@ const WindowFullscreen = () => {
 
   useEffect(() => {
     setFullScreen(true);
-    return () => {
-      setFullScreen(false);
-    };
+
+    return () => setFullScreen(false);
   }, []);
 
   return null;
@@ -187,6 +184,8 @@ const WindowTaskbar = ({ show }: WindowTaskbarProps) => {
 
   useEffect(() => {
     setShowInTaskbar(show);
+
+    return () => setShowInTaskbar(true);
   }, [show]);
 
   return null;
@@ -199,7 +198,6 @@ export const hideWindow = () => hide();
 Window.Title = WindowTitle;
 Window.Size = WindowSize;
 Window.Position = WindowPosition;
-Window.Center = WindowCenter;
 Window.Resizable = WindowResizable;
 Window.Movable = WindowMovable;
 Window.AlwaysOnTop = WindowAlwaysOnTop;

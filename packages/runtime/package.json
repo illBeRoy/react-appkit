@@ -6,12 +6,15 @@
     ".": "./src/index.ts",
     "./entrypoints/main": "./src/entrypoints/main.ts",
     "./entrypoints/preload": "./src/entrypoints/preload.ts",
-    "./main/api/*": "./src/main/api/*.ts"
+    "./main/api/*": "./src/main/api/*.ts",
+    "./renderer/Provider": "./src/renderer/Provider.tsx"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
     "@types/bun": "latest",
+    "@types/react": "^18.3.12",
     "eslint": "^9.14.0",
+    "react": "^18.3.1",
     "vite": "^5.4.10"
   },
   "peerDependencies": {

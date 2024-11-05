@@ -20,7 +20,7 @@ app.whenReady().then(async () => {
   const window = new BrowserWindow({
     width: 800,
     height: 600,
-    show: true,
+    show: false,
     center: true,
     webPreferences: {
       preload: path.join(app.getAppPath(), 'dist/preload/index.js'),
