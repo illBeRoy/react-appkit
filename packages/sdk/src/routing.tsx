@@ -4,14 +4,28 @@ import {
   useParams as useReactRouterParams,
   useLocation as useReactRouterLocation,
 } from 'react-router-dom';
+import { createNewWindow } from '@react-appkit/runtime/main/api/window';
 
 export interface LinkProps {
   to: string;
+  popup?: boolean;
   children: React.ReactNode;
 }
 
-export const Link = ({ to, children }: LinkProps) => {
-  return <ReactRouterLink to={to}>{children}</ReactRouterLink>;
+export const Link = ({ to, popup = false, children }: LinkProps) => {
+  return (
+    <ReactRouterLink
+      to={to}
+      onClick={(e) => {
+        if (popup) {
+          e.preventDefault();
+          createNewWindow(to);
+        }
+      }}
+    >
+      {children}
+    </ReactRouterLink>
+  );
 };
 
 export const useNavigation = () => {
@@ -21,8 +35,13 @@ export const useNavigation = () => {
     rrNavigate(to);
   };
 
+  const popup = (to: string) => {
+    createNewWindow(to);
+  };
+
   return {
     navigate,
+    popup,
   };
 };
 

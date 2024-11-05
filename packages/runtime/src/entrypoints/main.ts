@@ -1,7 +1,7 @@
-import path from 'node:path';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, ipcMain } from 'electron';
 import { exposedApis } from '../main/exposeApiToRenderer';
 import { attachCallerContextWhenCallingApiFromWindow } from '../main/context';
+import { createNewWindow } from '../main/api/window';
 
 app.whenReady().then(async () => {
   const apis = await exposedApis();
@@ -17,22 +17,7 @@ app.whenReady().then(async () => {
     },
   );
 
-  const window = new BrowserWindow({
-    width: 800,
-    height: 600,
-    show: false,
-    center: true,
-    webPreferences: {
-      preload: path.join(app.getAppPath(), 'dist/preload/index.js'),
-      sandbox: false,
-    },
-  });
-
-  if (process.env.DEV_TOOLS === 'true') {
-    window.webContents.openDevTools();
-  }
-
-  window.loadFile('dist/renderer/index.html');
+  createNewWindow('/');
 });
 
 app.on('window-all-closed', () => {

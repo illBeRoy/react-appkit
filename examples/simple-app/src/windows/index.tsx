@@ -13,7 +13,9 @@ export default function IndexWindow() {
       </Window>
       <div className={styles.body}>
         <div>This is index!</div>
-        <Link to="/about">About</Link>
+        <Link to="/about" popup>
+          About
+        </Link>
         <br />
         <button onClick={() => quit()}>Close app</button>
       </div>

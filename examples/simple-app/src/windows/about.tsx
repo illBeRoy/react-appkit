@@ -1,6 +1,6 @@
 import { Link } from '@react-appkit/sdk/routing';
-import imagePng from '../assets/image.png';
 import { Window } from '@react-appkit/sdk/window';
+import imagePng from '../assets/image.png';
 
 export default function AboutWindow() {
   return (

@@ -1,4 +1,5 @@
-import { BrowserWindow, screen } from 'electron';
+import { BrowserWindow, screen, app } from 'electron';
+import path from 'node:path';
 import { useSender } from '../context';
 
 export class NoWindowError extends Error {
@@ -135,4 +136,25 @@ export const show = () => {
 export const close = () => {
   const window = useCurrentWindow();
   window.close();
+};
+
+export const createNewWindow = (windowPath: string) => {
+  const window = new BrowserWindow({
+    width: 800,
+    height: 600,
+    show: false,
+    center: true,
+    webPreferences: {
+      preload: path.join(app.getAppPath(), 'dist/preload/index.js'),
+      sandbox: false,
+    },
+  });
+
+  if (process.env.DEV_TOOLS === 'true') {
+    window.webContents.openDevTools();
+  }
+
+  window.loadFile('dist/renderer/index.html', { hash: windowPath });
+
+  return window;
 };
