@@ -1,5 +1,4 @@
 import { app } from 'electron';
-// import dotenv from 'dotenv';
 import { createActionsRegistry } from '../main/actionsRegistry';
 import { exposeBuiltinApisAsActionsInto } from '../main/builtinApis';
 import { createNewWindow } from '../main/api/window';
@@ -16,8 +15,6 @@ export interface AppConfig {
 export function createApp(config: AppConfig) {
   async function start() {
     app.whenReady().then(async () => {
-      // dotenv.config();
-
       const actionsRegistry = createActionsRegistry();
 
       await exposeBuiltinApisAsActionsInto(actionsRegistry);

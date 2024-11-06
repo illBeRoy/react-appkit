@@ -5,7 +5,7 @@ import {
   Window,
   type WindowHandler,
 } from '@react-appkit/sdk/window';
-import { quit } from '@react-appkit/sdk/app';
+import { env, quit } from '@react-appkit/sdk/app';
 import { helloWorld, iThrow } from '../actions/hello';
 import styles from './index.module.css';
 
@@ -26,7 +26,7 @@ export default function IndexWindow() {
         <br />
         <button
           onClick={() => {
-            helloWorld().then((res) => alert(res));
+            helloWorld('Roy').then((res) => alert(res));
           }}
         >
           Action: Hello
@@ -37,6 +37,14 @@ export default function IndexWindow() {
           }}
         >
           Action iThrowError
+        </button>
+        <button
+          onClick={async () => {
+            const envVal = await env('FOO');
+            alert(envVal);
+          }}
+        >
+          Get env var
         </button>
         <button
           onClick={async () => {
