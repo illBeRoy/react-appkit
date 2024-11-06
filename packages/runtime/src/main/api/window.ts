@@ -1,6 +1,6 @@
 import { BrowserWindow, screen, app } from 'electron';
 import path from 'node:path';
-import { useSender } from '../context';
+import { useSender } from '../actionsEngine/context';
 
 class NoWindowError extends Error {
   name = 'NoWindowError';

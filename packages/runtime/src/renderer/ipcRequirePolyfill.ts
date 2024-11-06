@@ -1,5 +1,5 @@
-import type { ActionNamespace } from '../main/actionsRegistry'; // eslint-disable-line
-import type { InvokeRequest, InvokeResponse } from '../main/ipcBridge'; // eslint-disable-line
+import type { ActionNamespace } from '../main/actionsEngine/actionsRegistry'; // eslint-disable-line
+import type { InvokeRequest, InvokeResponse } from '../main/actionsEngine/ipcBridge'; // eslint-disable-line
 
 let invokeId = 0;
 

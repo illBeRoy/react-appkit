@@ -1,4 +1,4 @@
-import { useSender } from '../context';
+import { useSender } from '../actionsEngine/context';
 
 export const openDevTools = async () => {
   const sender = useSender();

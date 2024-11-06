@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { ActionsRegistry } from './actionsRegistry';
+import type { ActionsRegistry } from './actionsEngine/actionsRegistry';
 
 export async function exposeBuiltinApisAsActionsInto(
   actionsRegistry: ActionsRegistry,

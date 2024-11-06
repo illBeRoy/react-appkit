@@ -1,8 +1,8 @@
 import { app } from 'electron';
-import { createActionsRegistry } from '../main/actionsRegistry';
+import { createActionsRegistry } from '../main/actionsEngine/actionsRegistry';
 import { exposeBuiltinApisAsActionsInto } from '../main/builtinApis';
 import { createNewWindow } from '../main/api/window';
-import { startIpcBridge } from '../main/ipcBridge';
+import { startIpcBridge } from '../main/actionsEngine/ipcBridge';
 
 export interface AppConfig {
   userActions?: Array<{
