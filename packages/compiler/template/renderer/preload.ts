@@ -1,1 +1,1 @@
-import '@react-appkit/runtime/entrypoints/preload';
+import '@react-appkit/runtime/renderer/ipcPreloadScript';

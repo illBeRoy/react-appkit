@@ -3,7 +3,7 @@ import eslintConfig from '@react-appkit/eslint-config';
 export default [
   ...eslintConfig,
   {
-    files: ['src/main/**/*.{ts,tsx}', 'src/entrypoints/main.ts'],
+    files: ['src/main/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
         'error',

@@ -1,8 +1,9 @@
 import { app } from 'electron';
-import { createActionsRegistry } from '../main/actionsEngine/actionsRegistry';
-import { exposeBuiltinApisAsActionsInto } from '../main/builtinApis';
-import { createNewWindow } from '../main/api/window';
-import { startIpcBridge } from '../main/actionsEngine/ipcBridge';
+import { createActionsRegistry } from './actionsEngine/actionsRegistry';
+import { exposeBuiltinApisAsActionsInto } from './builtinApis';
+import { createNewWindow } from './api/window';
+import { startIpcBridge } from './actionsEngine/ipcBridge';
+import { renderTray } from './tray/renderer';
 
 export interface AppConfig {
   userActions?: Array<{
@@ -10,6 +11,7 @@ export interface AppConfig {
     exportedValueName: string;
     exportedValue: unknown;
   }>;
+  trayComponent?: React.ComponentType;
 }
 
 export function createApp(config: AppConfig) {
@@ -33,6 +35,10 @@ export function createApp(config: AppConfig) {
       }
 
       startIpcBridge(actionsRegistry);
+
+      if (config.trayComponent) {
+        renderTray(config.trayComponent);
+      }
 
       await createNewWindow('/');
     });

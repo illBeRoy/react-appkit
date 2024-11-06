@@ -1,7 +1,4 @@
-import {
-  createApp,
-  type AppConfig,
-} from '@react-appkit/runtime/entrypoints/main';
+import { createApp, type AppConfig } from '@react-appkit/runtime/main/app';
 
 async function main() {
   const config: AppConfig = {};
@@ -21,6 +18,23 @@ async function main() {
       });
     });
   });
+
+  const maybeTrayModule = import.meta.glob('./src/tray.tsx');
+  if (maybeTrayModule?.['./src/tray.tsx']) {
+    const trayModule = await maybeTrayModule['./src/tray.tsx']();
+
+    if (
+      !trayModule ||
+      typeof trayModule !== 'object' ||
+      !('default' in trayModule)
+    ) {
+      throw new Error(
+        'The ./src/tray.tsx file must export a default component that contains the <Tray /> component.',
+      );
+    }
+
+    config.trayComponent = trayModule.default as React.ComponentType;
+  }
 
   await createApp(config).start();
 }
