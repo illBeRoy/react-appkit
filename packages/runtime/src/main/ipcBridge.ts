@@ -1,8 +1,10 @@
 import { ipcMain, type WebContents } from 'electron';
-import type { ApisMap } from './exposedApis';
+import type { ActionNamespace, ActionsRegistry } from './actionsRegistry';
 import { callFunctionWithWindowContext } from './context';
 
 export interface InvokeRequest {
+  namespace: ActionNamespace;
+  filename: string;
   fnName: string;
   params: unknown[];
   invokeId: number;
@@ -24,11 +26,15 @@ export type InvokeResponse =
       };
     };
 
-export const startIpcBridge = (exposedApis: ApisMap) => {
+export const startIpcBridge = (actionsRegistry: ActionsRegistry) => {
   ipcMain.handle(
     'invokeMainProcessApi',
     async (event, invokeRequest: InvokeRequest) => {
-      const fn = exposedApis.get(invokeRequest.fnName);
+      const fn = actionsRegistry.getAction(
+        invokeRequest.namespace,
+        invokeRequest.filename,
+        invokeRequest.fnName,
+      );
 
       if (!fn) {
         return sendResponseToRenderer(event.sender, {
@@ -36,7 +42,7 @@ export const startIpcBridge = (exposedApis: ApisMap) => {
           invokeId: invokeRequest.invokeId,
           error: {
             name: 'MainProcessApiNotFoundError',
-            message: `You tried to invoke ${invokeRequest.fnName} in the main process, but it was never exposed from it`,
+            message: `You tried to invoke ${invokeRequest.fnName} (from file "${invokeRequest.filename}") in the main process, but it was never exposed from it to begin with`,
           },
         });
       }

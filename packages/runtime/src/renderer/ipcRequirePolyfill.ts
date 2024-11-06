@@ -1,20 +1,25 @@
+import type { ActionNamespace } from '../main/actionsRegistry'; // eslint-disable-line
 import type { InvokeRequest, InvokeResponse } from '../main/ipcBridge'; // eslint-disable-line
 
 let invokeId = 0;
 
 // @ts-expect-error window.require is defined here and therefore has no type
 window.require = (module: string) => {
-  let apiNamespace;
+  let actionNamespace: ActionNamespace | undefined;
   if (module.startsWith('@react-appkit/runtime/main/api/')) {
-    apiNamespace = module.split('/').pop();
+    actionNamespace = 'builtin';
   }
 
   if (module.startsWith('./src/actions/')) {
-    apiNamespace = `user.${module.split('/actions/').pop()?.replaceAll('.ts', '').replaceAll('/', '.')}`;
+    actionNamespace = 'user';
   }
 
-  if (!apiNamespace) {
+  if (!actionNamespace) {
     throw new Error(`Module ${module} not found. Was it not bundled?`);
+  }
+
+  if (!module.endsWith('.ts')) {
+    module = `${module}.ts`;
   }
 
   return new Proxy(
@@ -24,7 +29,9 @@ window.require = (module: string) => {
         (_, fnName) =>
         (...params: unknown[]) => {
           const invokeRequest: InvokeRequest = {
-            fnName: `${apiNamespace}.${String(fnName)}`,
+            namespace: actionNamespace,
+            filename: module,
+            fnName: String(fnName),
             invokeId: invokeId++,
             params,
           };

@@ -3,41 +3,8 @@
   <head>
     <title>React AppKit</title>
     <meta charset="UTF-8" />
-    <!-- <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'sha256-4pFpiibGllAnHOhuZjJWHeAplhGEBwsFYFRP35qxRaU='"> -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <script src="./requirePolyfill.js"></script>
-    <!-- <script src="@react-appkit/runtime/renderer/r" type="module" ></script> -->
-    <!-- <script>
-      let invokeId = 0;
-      window.require = (module) => {
-        let apiNamespace;
-        if (module.startsWith('@react-appkit/runtime/main/api/')) {
-          apiNamespace = module.split('/').pop();
-        }
-
-        if (module.includes('/actions/')) {
-          apiNamespace = `user.${module.split('/actions/').pop().split('.').shift()}`;
-        }
-
-        if (!apiNamespace) {
-          throw new Error(`Module ${module} not found. Was it not bundled?`);
-        }
-
-        return new Proxy(
-          {},
-          {
-            get:
-              (_, fnName) =>
-                (...params) => {
-                  window.__invokeMainProcessApi__(
-                    `${apiNamespace}.${String(fnName)}`,
-                    ...params,
-                  );
-                },
-          },
-        );
-      };
-    </script> -->
   </head>
   <body>
     <div id="root"></div>

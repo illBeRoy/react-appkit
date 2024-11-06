@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useNavigation } from '@react-appkit/sdk/routing';
 import {
   closeWindow,
@@ -5,9 +6,8 @@ import {
   type WindowHandler,
 } from '@react-appkit/sdk/window';
 import { quit } from '@react-appkit/sdk/app';
-import { helloWorld } from '../actions/hello';
+import { helloWorld, iThrow } from '../actions/hello';
 import styles from './index.module.css';
-import { useState } from 'react';
 
 export default function IndexWindow() {
   const [popupWindow, setPopupWindow] = useState<WindowHandler | null>(null);
@@ -29,7 +29,14 @@ export default function IndexWindow() {
             helloWorld().then((res) => alert(res));
           }}
         >
-          Hello
+          Action: Hello
+        </button>
+        <button
+          onClick={() => {
+            iThrow().catch(console.error);
+          }}
+        >
+          Action iThrowError
         </button>
         <button
           onClick={async () => {

@@ -2,7 +2,7 @@ import { BrowserWindow, screen, app } from 'electron';
 import path from 'node:path';
 import { useSender } from '../context';
 
-export class NoWindowError extends Error {
+class NoWindowError extends Error {
   name = 'NoWindowError';
   message = 'No window found';
 }
@@ -32,17 +32,17 @@ const fromWindowHandler = (windowHandler: WindowHandler) => {
   return window;
 };
 
-export const setTitle = (title: string) => {
+export const setTitle = async (title: string) => {
   const window = useCurrentWindow();
   window.setTitle(title);
 };
 
-export const setSize = (width: number, height: number) => {
+export const setSize = async (width: number, height: number) => {
   const window = useCurrentWindow();
   window.setSize(width, height);
 };
 
-export const setPosition = (
+export const setPosition = async (
   x: number | `${number}%`,
   y: number | `${number}%`,
   origin:
@@ -92,52 +92,52 @@ export const setPosition = (
   );
 };
 
-export const centerWindow = () => {
+export const centerWindow = async () => {
   const window = useCurrentWindow();
   window.center();
 };
 
-export const setResizable = (resizable: boolean) => {
+export const setResizable = async (resizable: boolean) => {
   const window = useCurrentWindow();
   window.setResizable(resizable);
 };
 
-export const setMovable = (movable: boolean) => {
+export const setMovable = async (movable: boolean) => {
   const window = useCurrentWindow();
   window.setMovable(movable);
 };
 
-export const setAlwaysOnTop = (alwaysOnTop: boolean) => {
+export const setAlwaysOnTop = async (alwaysOnTop: boolean) => {
   const window = useCurrentWindow();
   window.setAlwaysOnTop(alwaysOnTop);
 };
 
-export const setFullScreen = (fullScreen: boolean) => {
+export const setFullScreen = async (fullScreen: boolean) => {
   const window = useCurrentWindow();
   window.setFullScreen(fullScreen);
 };
 
-export const setShowInTaskbar = (show: boolean) => {
+export const setShowInTaskbar = async (show: boolean) => {
   const window = useCurrentWindow();
   window.setSkipTaskbar(!show);
 };
 
-export const setClosable = (closable: boolean) => {
+export const setClosable = async (closable: boolean) => {
   const window = useCurrentWindow();
   window.setClosable(closable);
 };
 
-export const setMinimizable = (minimizable: boolean) => {
+export const setMinimizable = async (minimizable: boolean) => {
   const window = useCurrentWindow();
   window.setMinimizable(minimizable);
 };
 
-export const setMaximizable = (maximizable: boolean) => {
+export const setMaximizable = async (maximizable: boolean) => {
   const window = useCurrentWindow();
   window.setMaximizable(maximizable);
 };
 
-export const hide = (windowHandler?: WindowHandler) => {
+export const hide = async (windowHandler?: WindowHandler) => {
   const window = windowHandler
     ? fromWindowHandler(windowHandler)
     : useCurrentWindow();
@@ -145,7 +145,7 @@ export const hide = (windowHandler?: WindowHandler) => {
   window.hide();
 };
 
-export const show = (windowHandler?: WindowHandler) => {
+export const show = async (windowHandler?: WindowHandler) => {
   const window = windowHandler
     ? fromWindowHandler(windowHandler)
     : useCurrentWindow();
@@ -153,7 +153,7 @@ export const show = (windowHandler?: WindowHandler) => {
   window.show();
 };
 
-export const close = (windowHandler?: WindowHandler) => {
+export const close = async (windowHandler?: WindowHandler) => {
   const window = windowHandler
     ? fromWindowHandler(windowHandler)
     : useCurrentWindow();
@@ -175,7 +175,8 @@ export const createNewWindow = async (
     },
   });
 
-  if (process.env.DEV_TOOLS === 'true') {
+  if (process.env.DEBUG_RENDERER === 'true') {
+    window.show();
     window.webContents.openDevTools();
   }
 

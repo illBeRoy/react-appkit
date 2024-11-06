@@ -1,20 +1,23 @@
 import path from 'node:path';
-import type { ApisMap } from './exposedApis';
+import type { ActionsRegistry } from './actionsRegistry';
 
-export async function exposeBuiltinApis(apisMap: ApisMap) {
+export async function exposeBuiltinApisAsActionsInto(
+  actionsRegistry: ActionsRegistry,
+) {
   const apiModules = import.meta.glob('./api/*.ts');
 
   await Promise.all(
-    Object.entries(apiModules).map(async ([filename, module]) => {
-      const namespace = path.basename(filename, '.ts');
+    Object.entries(apiModules).map(async ([moduleFilename, module]) => {
+      const namespace = 'builtin';
+      const filename = `@react-appkit/runtime/main/api/${path.basename(
+        moduleFilename,
+        '.ts',
+      )}.ts`;
       const exported = (await module()) as Record<string, unknown>; // all modules in the API folder are ESM so we can assume they're all Records
 
       Object.entries(exported).forEach(([key, value]) => {
         if (typeof value === 'function') {
-          apisMap.set(
-            `${namespace}.${key}`,
-            value as (...args: unknown[]) => unknown,
-          );
+          actionsRegistry.registerAction(namespace, filename, key, value);
         }
       });
     }),

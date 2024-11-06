@@ -1,37 +1,41 @@
 import { app } from 'electron';
-import { exposedApis } from '../main/exposedApis';
-import { exposeBuiltinApis } from '../main/builtinApis';
+// import dotenv from 'dotenv';
+import { createActionsRegistry } from '../main/actionsRegistry';
+import { exposeBuiltinApisAsActionsInto } from '../main/builtinApis';
 import { createNewWindow } from '../main/api/window';
-import {
-  ValueNotAnActionError,
-  ActionNotAsyncError,
-} from '../main/userActions';
 import { startIpcBridge } from '../main/ipcBridge';
 
 export interface AppConfig {
-  userApis?: Record<string, (...args: unknown[]) => unknown>;
+  userActions?: Array<{
+    fileName: string;
+    exportedValueName: string;
+    exportedValue: unknown;
+  }>;
 }
 
 export function createApp(config: AppConfig) {
   async function start() {
     app.whenReady().then(async () => {
-      await exposeBuiltinApis(exposedApis);
+      // dotenv.config();
 
-      if (config.userApis) {
-        Object.entries(config.userApis).forEach(([key, value]) => {
-          if (typeof value !== 'function') {
-            throw new ValueNotAnActionError(key);
-          }
+      const actionsRegistry = createActionsRegistry();
 
-          if (value.constructor.name !== 'AsyncFunction') {
-            throw new ActionNotAsyncError(key);
-          }
+      await exposeBuiltinApisAsActionsInto(actionsRegistry);
 
-          exposedApis.set(`user.${key}`, value);
-        });
+      if (config.userActions) {
+        config.userActions.forEach(
+          ({ fileName, exportedValueName, exportedValue }) => {
+            actionsRegistry.registerAction(
+              'user',
+              fileName,
+              exportedValueName,
+              exportedValue,
+            );
+          },
+        );
       }
 
-      startIpcBridge(exposedApis);
+      startIpcBridge(actionsRegistry);
 
       await createNewWindow('/');
     });
