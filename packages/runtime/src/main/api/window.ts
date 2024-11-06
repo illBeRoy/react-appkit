@@ -7,9 +7,23 @@ export class NoWindowError extends Error {
   message = 'No window found';
 }
 
+export interface WindowHandler {
+  id: number;
+}
+
 const useCurrentWindow = () => {
   const sender = useSender();
   const window = BrowserWindow.fromWebContents(sender);
+
+  if (!window) {
+    throw new NoWindowError();
+  }
+
+  return window;
+};
+
+const fromWindowHandler = (windowHandler: WindowHandler) => {
+  const window = BrowserWindow.fromId(windowHandler.id);
 
   if (!window) {
     throw new NoWindowError();
@@ -123,22 +137,33 @@ export const setMaximizable = (maximizable: boolean) => {
   window.setMaximizable(maximizable);
 };
 
-export const hide = () => {
-  const window = useCurrentWindow();
+export const hide = (windowHandler?: WindowHandler) => {
+  const window = windowHandler
+    ? fromWindowHandler(windowHandler)
+    : useCurrentWindow();
+
   window.hide();
 };
 
-export const show = () => {
-  const window = useCurrentWindow();
+export const show = (windowHandler?: WindowHandler) => {
+  const window = windowHandler
+    ? fromWindowHandler(windowHandler)
+    : useCurrentWindow();
+
   window.show();
 };
 
-export const close = () => {
-  const window = useCurrentWindow();
+export const close = (windowHandler?: WindowHandler) => {
+  const window = windowHandler
+    ? fromWindowHandler(windowHandler)
+    : useCurrentWindow();
+
   window.close();
 };
 
-export const createNewWindow = (windowPath: string) => {
+export const createNewWindow = async (
+  windowPath: string,
+): Promise<WindowHandler> => {
   const window = new BrowserWindow({
     width: 800,
     height: 600,
@@ -156,5 +181,5 @@ export const createNewWindow = (windowPath: string) => {
 
   window.loadFile('dist/renderer/index.html', { hash: windowPath });
 
-  return window;
+  return { id: window.id };
 };

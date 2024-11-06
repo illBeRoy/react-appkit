@@ -36,7 +36,7 @@ export const useNavigation = () => {
   };
 
   const popup = (to: string) => {
-    createNewWindow(to);
+    return createNewWindow(to);
   };
 
   return {

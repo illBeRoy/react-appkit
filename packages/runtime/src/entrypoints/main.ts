@@ -33,7 +33,7 @@ export function createApp(config: AppConfig) {
 
       startIpcBridge(exposedApis);
 
-      createNewWindow('/');
+      await createNewWindow('/');
     });
 
     app.on('window-all-closed', () => {

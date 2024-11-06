@@ -1,5 +1,6 @@
 import { useContext, createContext, useEffect } from 'react';
 import {
+  type WindowHandler,
   setSize,
   setTitle,
   setPosition,
@@ -191,9 +192,11 @@ const WindowTaskbar = ({ show }: WindowTaskbarProps) => {
   return null;
 };
 
-export const closeWindow = () => close();
-export const showWindow = () => show();
-export const hideWindow = () => hide();
+export const closeWindow = (window?: WindowHandler) => close(window);
+export const showWindow = (window?: WindowHandler) => show(window);
+export const hideWindow = (window?: WindowHandler) => hide(window);
+
+export type { WindowHandler };
 
 Window.Title = WindowTitle;
 Window.Size = WindowSize;
