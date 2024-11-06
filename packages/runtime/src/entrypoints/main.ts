@@ -1,28 +1,47 @@
-import { app, ipcMain } from 'electron';
+import { app } from 'electron';
 import { exposedApis } from '../main/exposedApis';
 import { exposeBuiltinApis } from '../main/builtinApis';
-import { attachCallerContextWhenCallingApiFromWindow } from '../main/context';
 import { createNewWindow } from '../main/api/window';
+import {
+  ValueNotAnActionError,
+  ActionNotAsyncError,
+} from '../main/userActions';
+import { startIpcBridge } from '../main/ipcBridge';
 
-app.whenReady().then(async () => {
-  await exposeBuiltinApis(exposedApis);
+export interface AppConfig {
+  userApis?: Record<string, (...args: unknown[]) => unknown>;
+}
 
-  ipcMain.handle(
-    'invokeMainProcessApi',
-    (event, fnName: string, ...params: unknown[]) => {
-      const fn = exposedApis.get(fnName);
+export function createApp(config: AppConfig) {
+  async function start() {
+    app.whenReady().then(async () => {
+      await exposeBuiltinApis(exposedApis);
 
-      if (fn) {
-        attachCallerContextWhenCallingApiFromWindow(event, fn, ...params);
+      if (config.userApis) {
+        Object.entries(config.userApis).forEach(([key, value]) => {
+          if (typeof value !== 'function') {
+            throw new ValueNotAnActionError(key);
+          }
+
+          if (value.constructor.name !== 'AsyncFunction') {
+            throw new ActionNotAsyncError(key);
+          }
+
+          exposedApis.set(`user.${key}`, value);
+        });
       }
-    },
-  );
 
-  createNewWindow('/');
-});
+      startIpcBridge(exposedApis);
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
+      createNewWindow('/');
+    });
+
+    app.on('window-all-closed', () => {
+      if (process.platform !== 'darwin') {
+        app.quit();
+      }
+    });
   }
-});
+
+  return { start };
+}

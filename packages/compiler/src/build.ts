@@ -5,11 +5,10 @@ import viteReact from '@vitejs/plugin-react';
 import { createWindowsMap } from './utils/createWindowsMap';
 import {
   externalizeMainProcessDeps,
-  modulePolyfill,
+  removeAbsolutePaths,
   virtualFiles,
 } from './utils/vite';
 import { templateFile } from './utils/templateFile';
-import externalGlobals from 'rollup-plugin-external-globals';
 
 async function buildMain(workDir: string) {
   await vite.build({
@@ -66,17 +65,25 @@ async function buildRenderer(workDir: string) {
         './entrypoint.tsx': await templateFile('renderer/entrypoint.tsx'),
         './index.html': await templateFile('renderer/index.html'),
       }),
+      removeAbsolutePaths(workDir),
       viteReact(),
     ],
     build: {
       assetsDir: './',
       outDir: path.resolve('dist', 'renderer'),
       rollupOptions: {
-        input: './index.html',
-        external: [/^@react-appkit\/runtime\/main\/api\/.+/],
+        input: {
+          app: './index.html',
+          requirePolyfill: '@react-appkit/runtime/renderer/ipcRequirePolyfill',
+        },
+        external: [
+          /^@react-appkit\/runtime\/main\/api\/.+/,
+          /\/src\/actions\/.+/,
+        ],
+        makeAbsoluteExternalsRelative: false,
         output: {
           format: 'cjs',
-          manualChunks: {},
+          entryFileNames: '[name].js',
         },
       },
     },

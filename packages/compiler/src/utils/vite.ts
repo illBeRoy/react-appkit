@@ -26,26 +26,13 @@ export const externalizeMainProcessDeps = (): Plugin => ({
   },
 });
 
-export const modulePolyfill = (
-  module: string | RegExp,
-  fn: (moduleName: string) => string,
-): Plugin => ({
-  name: '@react-appkit:polyfill-module',
-  enforce: 'pre',
-  resolveId(id: string) {
-    if (typeof module === 'string' && id === module) {
-      return id;
-    }
-    if (module instanceof RegExp && module.test(id)) {
-      return id;
-    }
-  },
-  load(id: string) {
-    if (typeof module === 'string' && id === module) {
-      return fn(id);
-    }
-    if (module instanceof RegExp && module.test(id)) {
-      return fn(id);
-    }
+export const removeAbsolutePaths = (rootDir: string): Plugin => ({
+  name: '@react-appkit:remove-absolute-paths',
+  generateBundle(_, bundle) {
+    Object.values(bundle).forEach((file) => {
+      if (file.type === 'chunk') {
+        file.code = file.code.replaceAll(rootDir, '.');
+      }
+    });
   },
 });

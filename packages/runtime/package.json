@@ -7,8 +7,8 @@
     "./entrypoints/main": "./src/entrypoints/main.ts",
     "./entrypoints/preload": "./src/entrypoints/preload.ts",
     "./main/api/*": "./src/main/api/*.ts",
-    "./main/exposedApis": "./src/main/exposedApis.ts",
-    "./renderer/Provider": "./src/renderer/Provider.tsx"
+    "./renderer/Provider": "./src/renderer/Provider.tsx",
+    "./renderer/ipcRequirePolyfill": "./src/renderer/ipcRequirePolyfill.ts"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",

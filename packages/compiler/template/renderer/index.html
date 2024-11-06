@@ -3,32 +3,44 @@
   <head>
     <title>React AppKit</title>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'sha256-kCreEE6kzLZI4ZEOzoci0BqaI9O7+OpcFV05otdVHrM='">
-    <script>
+    <!-- <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'sha256-4pFpiibGllAnHOhuZjJWHeAplhGEBwsFYFRP35qxRaU='"> -->
+    <script src="./requirePolyfill.js"></script>
+    <!-- <script src="@react-appkit/runtime/renderer/r" type="module" ></script> -->
+    <!-- <script>
+      let invokeId = 0;
       window.require = (module) => {
+        let apiNamespace;
         if (module.startsWith('@react-appkit/runtime/main/api/')) {
-          const apiNamespace = module.split('/').pop();
-          return new Proxy(
-            {},
-            {
-              get:
-                (_, fnName) =>
-                  (...params) =>
-                    window.__invokeMainProcessApi__(
-                      `${apiNamespace}.${String(fnName)}`,
-                      ...params,
-                    ),
-            },
-          );
+          apiNamespace = module.split('/').pop();
         }
 
-        throw new Error(`Module ${module} not found. Was it not bundled?`);
+        if (module.includes('/actions/')) {
+          apiNamespace = `user.${module.split('/actions/').pop().split('.').shift()}`;
+        }
+
+        if (!apiNamespace) {
+          throw new Error(`Module ${module} not found. Was it not bundled?`);
+        }
+
+        return new Proxy(
+          {},
+          {
+            get:
+              (_, fnName) =>
+                (...params) => {
+                  window.__invokeMainProcessApi__(
+                    `${apiNamespace}.${String(fnName)}`,
+                    ...params,
+                  );
+                },
+          },
+        );
       };
-    </script>
+    </script> -->
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./entrypoint.tsx"></script>
+    <script id="b" type="module" src="./entrypoint.tsx"></script>
   </body>
 </html>
