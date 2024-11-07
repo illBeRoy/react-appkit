@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef } from 'react';
 import type { TrayManager } from './trayManager';
 import { Menu, MenuItem } from 'electron';
+import { useFirstRender, useUnmount } from './renderer';
 
 export interface TrayProviderProps {
   manager: TrayManager;
@@ -42,24 +43,28 @@ export interface TrayProps {
   children: React.ReactNode;
 }
 
-export const Tray = ({ icon }: TrayProps) => {
+export const Tray = ({ icon, children }: TrayProps) => {
   const manager = useTrayManager();
 
-  useEffect(() => {
+  useFirstRender(() => {
     manager.create();
-    return () => manager.destroy();
-  }, []);
+  });
+
+  useUnmount(() => {
+    manager.destroy();
+  });
 
   useEffect(() => {
     manager.setIcon(icon);
   }, [icon]);
 
-  return null;
+  return children;
 };
 
 export interface TrayMenuProps {
   children: React.ReactNode;
   label?: string;
+  enabled?: boolean;
 }
 
 const TrayMenuContext = createContext<Menu | null>(null);
@@ -78,27 +83,48 @@ const useParentTrayMenu = <TRequired extends boolean = true>({
   return context as Menu;
 };
 
-export const TrayMenu = ({ children, label = '' }: TrayMenuProps) => {
+const useMenuMutation = () => {
+  const manager = useTrayManager();
+
+  const mutateMenu = (menuMutatorFn: () => void) => {
+    menuMutatorFn();
+    manager.redrawContextMenu();
+  };
+
+  return { mutateMenu };
+};
+
+export const TrayMenu = ({
+  children,
+  label = '',
+  enabled = true,
+}: TrayMenuProps) => {
   const id = useRef(crypto.randomUUID());
   const trayManager = useTrayManager();
   const parentMenu = useParentTrayMenu({ required: false });
   const menu = useRef(new Menu());
+  const { mutateMenu } = useMenuMutation();
 
-  useEffect(() => {
-    if (parentMenu) {
-      parentMenu.append(
-        new MenuItem({
-          id: id.current,
-          type: 'submenu',
-          label,
-          submenu: menu.current,
-        }),
-      );
-    } else {
-      trayManager.setContextMenu(menu.current);
-    }
+  useFirstRender(() => {
+    mutateMenu(() => {
+      if (parentMenu) {
+        parentMenu.append(
+          new MenuItem({
+            id: id.current,
+            type: 'submenu',
+            label,
+            enabled,
+            submenu: menu.current,
+          }),
+        );
+      } else {
+        trayManager.setContextMenu(menu.current);
+      }
+    });
+  });
 
-    return () => {
+  useUnmount(() => {
+    mutateMenu(() => {
       if (parentMenu) {
         const indexOfItem = parentMenu.items.findIndex(
           (item) => item.id === id.current,
@@ -108,8 +134,8 @@ export const TrayMenu = ({ children, label = '' }: TrayMenuProps) => {
       } else {
         trayManager.setContextMenu(null);
       }
-    };
-  }, []);
+    });
+  });
 
   return (
     <TrayMenuContext.Provider value={menu.current}>
@@ -131,30 +157,37 @@ const TrayMenuButtonItem = ({
 }: TrayMenuButtonItemProps) => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
+  const { mutateMenu } = useMenuMutation();
+
+  useFirstRender(() => {
+    parentMenu.append(
+      new MenuItem({
+        id: id.current,
+        type: 'normal',
+        label,
+        enabled,
+        click: onClick,
+      }),
+    );
+  });
 
   useEffect(() => {
-    const existingItem = parentMenu.items.find(
-      (item) => item.id === id.current,
-    );
-    if (existingItem) {
-      existingItem.label = label;
-      existingItem.enabled = enabled;
-      existingItem.click = onClick;
-    } else {
-      parentMenu.append(
-        new MenuItem({
-          id: id.current,
-          type: 'normal',
-          label,
-          enabled,
-          click: onClick,
-        }),
+    console.log(label);
+    mutateMenu(() => {
+      const existingItem = parentMenu.items.find(
+        (item) => item.id === id.current,
       );
-    }
+
+      if (existingItem) {
+        existingItem.label = label;
+        existingItem.enabled = enabled;
+        existingItem.click = onClick;
+      }
+    });
   }, [label, enabled, onClick]);
 
-  useEffect(() => {
-    return () => {
+  useUnmount(() => {
+    mutateMenu(() => {
       const indexOfItem = parentMenu.items.findIndex(
         (item) => item.id === id.current,
       );
@@ -162,8 +195,8 @@ const TrayMenuButtonItem = ({
       if (indexOfItem !== -1) {
         parentMenu.items.splice(indexOfItem, 1);
       }
-    };
-  }, []);
+    });
+  });
 
   return null;
 };
@@ -183,32 +216,37 @@ const TrayMenuCheckboxItem = ({
 }: TrayMenuCheckboxItemProps) => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
+  const { mutateMenu } = useMenuMutation();
+
+  useFirstRender(() => {
+    parentMenu.append(
+      new MenuItem({
+        id: id.current,
+        type: 'checkbox',
+        label,
+        enabled,
+        click: onClick,
+        checked,
+      }),
+    );
+  });
 
   useEffect(() => {
-    const existingItem = parentMenu.items.find(
-      (item) => item.id === id.current,
-    );
-    if (existingItem) {
-      existingItem.label = label;
-      existingItem.enabled = enabled;
-      existingItem.click = onClick;
-      existingItem.checked = checked;
-    } else {
-      parentMenu.append(
-        new MenuItem({
-          id: id.current,
-          type: 'checkbox',
-          label,
-          enabled,
-          click: onClick,
-          checked,
-        }),
+    mutateMenu(() => {
+      const existingItem = parentMenu.items.find(
+        (item) => item.id === id.current,
       );
-    }
+      if (existingItem) {
+        existingItem.label = label;
+        existingItem.enabled = enabled;
+        existingItem.click = onClick;
+        existingItem.checked = checked;
+      }
+    });
   }, [label, enabled, onClick]);
 
-  useEffect(() => {
-    return () => {
+  useUnmount(() => {
+    mutateMenu(() => {
       const indexOfItem = parentMenu.items.findIndex(
         (item) => item.id === id.current,
       );
@@ -216,8 +254,8 @@ const TrayMenuCheckboxItem = ({
       if (indexOfItem !== -1) {
         parentMenu.items.splice(indexOfItem, 1);
       }
-    };
-  }, []);
+    });
+  });
 
   return null;
 };
@@ -237,32 +275,37 @@ const TrayMenuRadioItem = ({
 }: TrayMenuRadioItemProps) => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
+  const { mutateMenu } = useMenuMutation();
+
+  useFirstRender(() => {
+    parentMenu.append(
+      new MenuItem({
+        id: id.current,
+        type: 'radio',
+        label,
+        enabled,
+        click: onClick,
+        checked,
+      }),
+    );
+  });
 
   useEffect(() => {
-    const existingItem = parentMenu.items.find(
-      (item) => item.id === id.current,
-    );
-    if (existingItem) {
-      existingItem.label = label;
-      existingItem.enabled = enabled;
-      existingItem.click = onClick;
-      existingItem.checked = checked;
-    } else {
-      parentMenu.append(
-        new MenuItem({
-          id: id.current,
-          type: 'radio',
-          label,
-          enabled,
-          click: onClick,
-          checked,
-        }),
+    mutateMenu(() => {
+      const existingItem = parentMenu.items.find(
+        (item) => item.id === id.current,
       );
-    }
+      if (existingItem) {
+        existingItem.label = label;
+        existingItem.enabled = enabled;
+        existingItem.click = onClick;
+        existingItem.checked = checked;
+      }
+    });
   }, [label, enabled, onClick]);
 
-  useEffect(() => {
-    return () => {
+  useUnmount(() => {
+    mutateMenu(() => {
       const indexOfItem = parentMenu.items.findIndex(
         (item) => item.id === id.current,
       );
@@ -270,8 +313,8 @@ const TrayMenuRadioItem = ({
       if (indexOfItem !== -1) {
         parentMenu.items.splice(indexOfItem, 1);
       }
-    };
-  }, []);
+    });
+  });
 
   return null;
 };
@@ -279,18 +322,23 @@ const TrayMenuRadioItem = ({
 const TrayMenuSeparatorItem = () => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
+  const { mutateMenu } = useMenuMutation();
 
-  useEffect(() => {
-    parentMenu.append(new MenuItem({ id: id.current, type: 'separator' }));
+  useFirstRender(() => {
+    mutateMenu(() => {
+      parentMenu.append(new MenuItem({ id: id.current, type: 'separator' }));
+    });
+  });
 
-    return () => {
+  useUnmount(() => {
+    mutateMenu(() => {
       const indexOfItem = parentMenu.items.findIndex(
         (item) => item.id === id.current,
       );
 
       parentMenu.items.splice(indexOfItem, 1);
-    };
-  }, []);
+    });
+  });
 
   return null;
 };
