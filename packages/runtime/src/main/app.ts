@@ -1,9 +1,10 @@
 import { app } from 'electron';
-import { createActionsRegistry } from './actionsEngine/actionsRegistry';
+import { createActionsRegistry } from './actionsEngine/registry';
+import { renderTray } from './tray/renderer';
+import { registerHotkeys } from './hotkeys/registerHotkeys';
 import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { createNewWindow } from './api/window';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
-import { renderTray } from './tray/renderer';
 
 export interface AppConfig {
   userActions?: Array<{
@@ -12,6 +13,7 @@ export interface AppConfig {
     exportedValue: unknown;
   }>;
   trayComponent?: React.ComponentType;
+  hotkeys?: Map<string, () => void | Promise<void>>;
 }
 
 export function createApp(config: AppConfig) {
@@ -32,6 +34,10 @@ export function createApp(config: AppConfig) {
             );
           },
         );
+      }
+
+      if (config.hotkeys) {
+        registerHotkeys(config.hotkeys);
       }
 
       startIpcBridge(actionsRegistry);

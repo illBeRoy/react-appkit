@@ -34,7 +34,7 @@ export default [
   },
   // Main process rules
   {
-    files: ['src/actions/**/*.{js,jsx,ts,tsx}', 'src/tray.tsx'],
+    files: ['src/actions/**/*.{js,jsx,ts,tsx}', 'src/tray.tsx', 'src/hotkeys/**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       globals: {
         ...globals.node,

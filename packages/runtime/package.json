@@ -6,7 +6,7 @@
     ".": "./src/index.ts",
     "./main/app": "./src/main/app.ts",
     "./main/tray/components": "./src/main/tray/components.tsx",
-    "./main/tray/renderer": "./src/main/tray/renderer.tsx",
+    "./main/hotkeys/key": "./src/main/hotkeys/key.ts",
     "./main/api/*": "./src/main/api/*.ts",
     "./renderer/Provider": "./src/renderer/Provider.tsx",
     "./renderer/ipcPreloadScript": "./src/renderer/ipcPreloadScript.ts",

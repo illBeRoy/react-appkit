@@ -1,5 +1,5 @@
 import { ipcMain, type WebContents } from 'electron';
-import type { ActionNamespace, ActionsRegistry } from './actionsRegistry';
+import type { ActionNamespace, ActionsRegistry } from './registry';
 import { callFunctionWithWindowContext } from './context';
 
 export interface InvokeRequest {

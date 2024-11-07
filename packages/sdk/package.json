@@ -8,7 +8,8 @@
     "./window": "./src/window.tsx",
     "./routing": "./src/routing.tsx",
     "./devtools": "./src/devtools.tsx",
-    "./tray": "./src/tray.ts"
+    "./tray": "./src/tray.ts",
+    "./hotkeys": "./src/hotkeys.ts"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",

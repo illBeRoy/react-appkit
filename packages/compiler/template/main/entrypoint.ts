@@ -3,7 +3,7 @@ import { createApp, type AppConfig } from '@react-appkit/runtime/main/app';
 async function main() {
   const config: AppConfig = {};
 
-  const srcActionsAllModules = await import.meta.glob('./src/actions/*.ts');
+  const srcActionsAllModules = import.meta.glob('./src/actions/*.ts');
 
   config.userActions = [];
 
@@ -34,6 +34,27 @@ async function main() {
     }
 
     config.trayComponent = trayModule.default as React.ComponentType;
+  }
+
+  const maybeHotkeysModule = import.meta.glob('./src/hotkeys.ts');
+  if (maybeHotkeysModule?.['./src/hotkeys.ts']) {
+    const hotkeysModule = await maybeHotkeysModule['./src/hotkeys.ts']();
+
+    if (
+      !hotkeysModule ||
+      typeof hotkeysModule !== 'object' ||
+      !('default' in hotkeysModule) ||
+      !hotkeysModule.default ||
+      typeof hotkeysModule.default !== 'object' ||
+      !('build' in hotkeysModule.default) ||
+      typeof hotkeysModule.default.build !== 'function'
+    ) {
+      throw new Error(
+        'The ./src/hotkeys.ts file must export a hotkeys builder. Example:\n\nimport { hotkeys } from "@react-appkit/sdk/hotkeys";\n\nexport default hotkeys()\n  .addHotkey(["CmdOrCtrl", "H"], () => console.log("Hello, world"));\n',
+      );
+    }
+
+    config.hotkeys = hotkeysModule.default.build();
   }
 
   await createApp(config).start();
