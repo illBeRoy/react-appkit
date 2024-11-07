@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "electron": "^33.0.2",
+    "jimp": "^1.6.0",
     "react": "^18.3.1",
     "react-nil": "^1.2.0"
   }

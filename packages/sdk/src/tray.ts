@@ -1,3 +1,7 @@
-import { Tray } from '@react-appkit/runtime/main/tray/components';
+import {
+  Tray,
+  TrayMenu,
+  TrayMenuItem,
+} from '@react-appkit/runtime/main/tray/components';
 
-export { Tray };
+export { Tray, TrayMenu, TrayMenuItem };
