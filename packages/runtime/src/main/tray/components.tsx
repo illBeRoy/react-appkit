@@ -67,31 +67,26 @@ export interface TrayMenuProps {
   enabled?: boolean;
 }
 
-const TrayMenuContext = createContext<Menu | null>(null);
+interface MenuContext {
+  append: (item: MenuItem) => void;
+  remove: (id: string) => void;
+  modify: (id: string, item: MenuItem) => void;
+}
+
+const TrayMenuContext = createContext<MenuContext | null>(null);
 
 const useParentTrayMenu = <TRequired extends boolean = true>({
   required = true as TRequired,
 }: { required?: TRequired } = {}): TRequired extends true
-  ? Menu
-  : Menu | null => {
+  ? MenuContext
+  : MenuContext | null => {
   const context = useContext(TrayMenuContext);
 
   if (required && !context) {
     throw new TrayMenuContextError();
   }
 
-  return context as Menu;
-};
-
-const useMenuMutation = () => {
-  const manager = useTrayManager();
-
-  const mutateMenu = (menuMutatorFn: () => void) => {
-    menuMutatorFn();
-    manager.redrawContextMenu();
-  };
-
-  return { mutateMenu };
+  return context as MenuContext;
 };
 
 export const TrayMenu = ({
@@ -103,42 +98,108 @@ export const TrayMenu = ({
   const trayManager = useTrayManager();
   const parentMenu = useParentTrayMenu({ required: false });
   const menu = useRef(new Menu());
-  const { mutateMenu } = useMenuMutation();
 
   useFirstRender(() => {
-    mutateMenu(() => {
-      if (parentMenu) {
-        parentMenu.append(
-          new MenuItem({
-            id: id.current,
-            type: 'submenu',
-            label,
-            enabled,
-            submenu: menu.current,
-          }),
-        );
-      } else {
-        trayManager.setContextMenu(menu.current);
-      }
-    });
+    if (parentMenu) {
+      parentMenu.append(
+        new MenuItem({
+          id: id.current,
+          type: 'submenu',
+          label,
+          enabled,
+          submenu: menu.current,
+        }),
+      );
+    } else {
+      trayManager.setContextMenu(menu.current);
+    }
   });
+
+  useEffect(() => {
+    if (parentMenu) {
+      parentMenu.modify(
+        id.current,
+        new MenuItem({
+          id: id.current,
+          type: 'submenu',
+          label,
+          enabled,
+          submenu: menu.current,
+        }),
+      );
+    }
+  }, [label, enabled]);
 
   useUnmount(() => {
-    mutateMenu(() => {
-      if (parentMenu) {
-        const indexOfItem = parentMenu.items.findIndex(
-          (item) => item.id === id.current,
-        );
-
-        parentMenu.items.splice(indexOfItem, 1);
-      } else {
-        trayManager.setContextMenu(null);
-      }
-    });
+    if (parentMenu) {
+      parentMenu.remove(id.current);
+    } else {
+      trayManager.setContextMenu(null);
+    }
   });
 
+  const append = (item: MenuItem) => {
+    menu.current.append(item);
+  };
+
+  const remove = (itemId: string) => {
+    const newMenu = new Menu();
+
+    menu.current.items.forEach((item) => {
+      if (item.id !== itemId) {
+        newMenu.append(item);
+      }
+    });
+
+    menu.current = newMenu;
+
+    if (parentMenu) {
+      parentMenu.modify(
+        id.current,
+        new MenuItem({
+          id: id.current,
+          type: 'submenu',
+          label,
+          enabled,
+          submenu: newMenu,
+        }),
+      );
+    } else {
+      trayManager.setContextMenu(newMenu);
+    }
+  };
+
+  const modify = (itemId: string, modifiedItem: MenuItem) => {
+    const newMenu = new Menu();
+
+    menu.current.items.forEach((item) => {
+      if (item.id === itemId) {
+        newMenu.append(modifiedItem);
+      } else {
+        newMenu.append(item);
+      }
+    });
+
+    menu.current = newMenu;
+
+    if (parentMenu) {
+      parentMenu.modify(
+        id.current,
+        new MenuItem({
+          id: id.current,
+          type: 'submenu',
+          label,
+          enabled,
+          submenu: newMenu,
+        }),
+      );
+    } else {
+      trayManager.setContextMenu(newMenu);
+    }
+  };
+
   return (
-    <TrayMenuContext.Provider value={menu.current}>
+    <TrayMenuContext.Provider value={{ append, remove, modify }}>
       {children}
     </TrayMenuContext.Provider>
   );
@@ -157,7 +218,6 @@ const TrayMenuButtonItem = ({
 }: TrayMenuButtonItemProps) => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
-  const { mutateMenu } = useMenuMutation();
 
   useFirstRender(() => {
     parentMenu.append(
@@ -172,30 +232,20 @@ const TrayMenuButtonItem = ({
   });
 
   useEffect(() => {
-    console.log(label);
-    mutateMenu(() => {
-      const existingItem = parentMenu.items.find(
-        (item) => item.id === id.current,
-      );
-
-      if (existingItem) {
-        existingItem.label = label;
-        existingItem.enabled = enabled;
-        existingItem.click = onClick;
-      }
-    });
+    parentMenu.modify(
+      id.current,
+      new MenuItem({
+        id: id.current,
+        type: 'normal',
+        label,
+        enabled,
+        click: onClick,
+      }),
+    );
   }, [label, enabled, onClick]);
 
   useUnmount(() => {
-    mutateMenu(() => {
-      const indexOfItem = parentMenu.items.findIndex(
-        (item) => item.id === id.current,
-      );
-
-      if (indexOfItem !== -1) {
-        parentMenu.items.splice(indexOfItem, 1);
-      }
-    });
+    parentMenu.remove(id.current);
   });
 
   return null;
@@ -216,7 +266,6 @@ const TrayMenuCheckboxItem = ({
 }: TrayMenuCheckboxItemProps) => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
-  const { mutateMenu } = useMenuMutation();
 
   useFirstRender(() => {
     parentMenu.append(
@@ -232,29 +281,21 @@ const TrayMenuCheckboxItem = ({
   });
 
   useEffect(() => {
-    mutateMenu(() => {
-      const existingItem = parentMenu.items.find(
-        (item) => item.id === id.current,
-      );
-      if (existingItem) {
-        existingItem.label = label;
-        existingItem.enabled = enabled;
-        existingItem.click = onClick;
-        existingItem.checked = checked;
-      }
-    });
+    parentMenu.modify(
+      id.current,
+      new MenuItem({
+        id: id.current,
+        type: 'checkbox',
+        label,
+        enabled,
+        click: onClick,
+        checked,
+      }),
+    );
   }, [label, enabled, onClick]);
 
   useUnmount(() => {
-    mutateMenu(() => {
-      const indexOfItem = parentMenu.items.findIndex(
-        (item) => item.id === id.current,
-      );
-
-      if (indexOfItem !== -1) {
-        parentMenu.items.splice(indexOfItem, 1);
-      }
-    });
+    parentMenu.remove(id.current);
   });
 
   return null;
@@ -275,7 +316,6 @@ const TrayMenuRadioItem = ({
 }: TrayMenuRadioItemProps) => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
-  const { mutateMenu } = useMenuMutation();
 
   useFirstRender(() => {
     parentMenu.append(
@@ -291,29 +331,21 @@ const TrayMenuRadioItem = ({
   });
 
   useEffect(() => {
-    mutateMenu(() => {
-      const existingItem = parentMenu.items.find(
-        (item) => item.id === id.current,
-      );
-      if (existingItem) {
-        existingItem.label = label;
-        existingItem.enabled = enabled;
-        existingItem.click = onClick;
-        existingItem.checked = checked;
-      }
-    });
+    parentMenu.modify(
+      id.current,
+      new MenuItem({
+        id: id.current,
+        type: 'radio',
+        label,
+        enabled,
+        click: onClick,
+        checked,
+      }),
+    );
   }, [label, enabled, onClick]);
 
   useUnmount(() => {
-    mutateMenu(() => {
-      const indexOfItem = parentMenu.items.findIndex(
-        (item) => item.id === id.current,
-      );
-
-      if (indexOfItem !== -1) {
-        parentMenu.items.splice(indexOfItem, 1);
-      }
-    });
+    parentMenu.remove(id.current);
   });
 
   return null;
@@ -322,22 +354,13 @@ const TrayMenuRadioItem = ({
 const TrayMenuSeparatorItem = () => {
   const id = useRef(crypto.randomUUID());
   const parentMenu = useParentTrayMenu();
-  const { mutateMenu } = useMenuMutation();
 
   useFirstRender(() => {
-    mutateMenu(() => {
-      parentMenu.append(new MenuItem({ id: id.current, type: 'separator' }));
-    });
+    parentMenu.append(new MenuItem({ id: id.current, type: 'separator' }));
   });
 
   useUnmount(() => {
-    mutateMenu(() => {
-      const indexOfItem = parentMenu.items.findIndex(
-        (item) => item.id === id.current,
-      );
-
-      parentMenu.items.splice(indexOfItem, 1);
-    });
+    parentMenu.remove(id.current);
   });
 
   return null;

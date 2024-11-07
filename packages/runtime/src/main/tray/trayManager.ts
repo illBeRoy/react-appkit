@@ -11,7 +11,6 @@ export type TrayManager = ReturnType<typeof createTrayManager>;
 
 export const createTrayManager = () => {
   let tray: Tray | null = null;
-  let contextMenu: Menu | null = null;
 
   const create = () => {
     tray = new Tray(emptyIcon);
@@ -24,7 +23,6 @@ export const createTrayManager = () => {
 
     tray.destroy();
     tray = null;
-    contextMenu = null;
   };
 
   const setIcon = async (imageDataUri: string) => {
@@ -50,18 +48,6 @@ export const createTrayManager = () => {
     }
 
     tray.setContextMenu(menu);
-    contextMenu = menu;
-  };
-
-  const redrawContextMenu = () => {
-    if (!tray) {
-      throw new TrayNotInitializedError();
-    }
-
-    console.log('redrawing context menu');
-
-    tray.setContextMenu(new Menu());
-    tray.setContextMenu(contextMenu);
   };
 
   return {
@@ -70,6 +56,5 @@ export const createTrayManager = () => {
     setIcon,
     setTooltip,
     setContextMenu,
-    redrawContextMenu,
   };
 };
