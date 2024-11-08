@@ -1,4 +1,4 @@
-import { ipcMain, type WebContents } from 'electron';
+import { ipcMain } from 'electron';
 import type { ActionNamespace, ActionsRegistry } from './registry';
 import { callFunctionWithWindowContext } from './context';
 
@@ -10,21 +10,14 @@ export interface InvokeRequest {
   invokeId: number;
 }
 
-export type InvokeResponse =
-  | {
-      event: 'invokeMainProcessApiResult';
-      invokeId: number;
-      returnValue: unknown;
-    }
-  | {
-      event: 'invokeMainProcessApiError';
-      invokeId: number;
-      error: {
-        name: string;
-        message: string;
-        stack?: string;
-      };
-    };
+export class MainProcessApiNotFoundError extends Error {
+  name = 'MainProcessApiNotFoundError';
+  constructor(fnName: string, filename: string) {
+    super(
+      `You tried to invoke ${fnName} (from file "${filename}") in the main process, but it was never exposed from it to begin with`,
+    );
+  }
+}
 
 export const startIpcBridge = (actionsRegistry: ActionsRegistry) => {
   ipcMain.handle(
@@ -37,44 +30,13 @@ export const startIpcBridge = (actionsRegistry: ActionsRegistry) => {
       );
 
       if (!fn) {
-        return sendResponseToRenderer(event.sender, {
-          event: 'invokeMainProcessApiError',
-          invokeId: invokeRequest.invokeId,
-          error: {
-            name: 'MainProcessApiNotFoundError',
-            message: `You tried to invoke ${invokeRequest.fnName} (from file "${invokeRequest.filename}") in the main process, but it was never exposed from it to begin with`,
-          },
-        });
+        throw new MainProcessApiNotFoundError(
+          invokeRequest.fnName,
+          invokeRequest.filename,
+        );
       }
 
-      await callFunctionWithWindowContext(event, fn, ...invokeRequest.params)
-        .then((returnValue: unknown) =>
-          sendResponseToRenderer(event.sender, {
-            event: 'invokeMainProcessApiResult',
-            invokeId: invokeRequest.invokeId,
-            returnValue,
-          }),
-        )
-        .catch((error: Error) =>
-          sendResponseToRenderer(event.sender, {
-            event: 'invokeMainProcessApiError',
-            invokeId: invokeRequest.invokeId,
-            error: {
-              name: error.name,
-              message: error.message,
-              stack: error.stack,
-            },
-          }),
-        );
+      return callFunctionWithWindowContext(event, fn, ...invokeRequest.params);
     },
-  );
-};
-
-const sendResponseToRenderer = (
-  webContents: WebContents,
-  response: InvokeResponse,
-) => {
-  return webContents.executeJavaScript(
-    `window.postMessage(${JSON.stringify(response)})`,
   );
 };

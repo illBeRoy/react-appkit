@@ -1,5 +1,5 @@
 import type { ActionNamespace } from '../main/actionsEngine/registry'; // eslint-disable-line
-import type { InvokeRequest, InvokeResponse } from '../main/actionsEngine/ipcBridge'; // eslint-disable-line
+import type { InvokeRequest } from '../main/actionsEngine/ipcBridge'; // eslint-disable-line
 
 let invokeId = 0;
 
@@ -36,41 +36,8 @@ window.require = (module: string) => {
             params,
           };
 
-          return new Promise((resolve, reject) => {
-            function handleMessage(event: MessageEvent<InvokeResponse>) {
-              if (typeof event.data !== 'object' || !event.data) {
-                return;
-              }
-
-              if (
-                event.data.event === 'invokeMainProcessApiResult' &&
-                event.data.invokeId === invokeRequest.invokeId
-              ) {
-                window.removeEventListener('message', handleMessage);
-                resolve(event.data.returnValue);
-                return;
-              }
-
-              if (
-                event.data.event === 'invokeMainProcessApiError' &&
-                event.data.invokeId === invokeRequest.invokeId
-              ) {
-                const error = new Error();
-                error.name = event.data.error.name;
-                error.message = event.data.error.message;
-                error.stack ??= event.data.error.stack;
-
-                window.removeEventListener('message', handleMessage);
-                reject(error);
-                return;
-              }
-            }
-
-            window.addEventListener('message', handleMessage);
-
-            // @ts-expect-error window.__invokeMainProcessApi__ is defined implicitly in the preload script
-            window.__invokeMainProcessApi__(invokeRequest);
-          });
+          // @ts-expect-error window.__invokeMainProcessApi__ is defined implicitly in the preload script
+          return window.__invokeMainProcessApi__(invokeRequest);
         },
     },
   );
