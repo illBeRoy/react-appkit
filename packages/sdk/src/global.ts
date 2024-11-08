@@ -6,22 +6,25 @@ import { useEntireGlobalState } from '@react-appkit/runtime/shared/globalState/r
 
 export const useGlobalState = <T>(
   key: string,
-  defaultValue: T,
+  defaultValueOrFn: T | (() => T),
 ): [value: T, setValue: (value: T) => void] => {
   const globalState = useEntireGlobalState();
-
-  if (globalState[key] === undefined) {
-    setGlobalState(key, defaultValue);
-  }
 
   const setValue = (value: T) => {
     setGlobalState(key, value);
   };
 
-  return [
-    globalState[key] !== undefined ? (globalState[key] as T) : defaultValue,
-    setValue,
-  ];
+  if (globalState[key] === undefined) {
+    const defaultValue =
+      typeof defaultValueOrFn === 'function'
+        ? (defaultValueOrFn as () => T)()
+        : defaultValueOrFn;
+
+    setGlobalState(key, defaultValue);
+    return [defaultValue, setValue];
+  }
+
+  return [globalState[key] as T, setValue];
 };
 
 export { getGlobalState, setGlobalState };
