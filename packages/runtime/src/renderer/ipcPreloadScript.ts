@@ -11,3 +11,11 @@ contextBridge.exposeInMainWorld(
   (fnName: string, ...params: unknown[]) =>
     ipcRenderer.invoke('invokeMainProcessApi', fnName, ...params),
 );
+
+contextBridge.exposeInMainWorld('__globalState__', {
+  addEventListener: (callback: () => void) => {
+    ipcRenderer.on('globalStateChange', () => {
+      callback();
+    });
+  },
+});

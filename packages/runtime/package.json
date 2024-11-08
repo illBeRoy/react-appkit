@@ -10,7 +10,8 @@
     "./main/api/*": "./src/main/api/*.ts",
     "./renderer/Provider": "./src/renderer/Provider.tsx",
     "./renderer/ipcPreloadScript": "./src/renderer/ipcPreloadScript.ts",
-    "./renderer/ipcRequirePolyfill": "./src/renderer/ipcRequirePolyfill.ts"
+    "./renderer/ipcRequirePolyfill": "./src/renderer/ipcRequirePolyfill.ts",
+    "./shared/globalState/reactContext": "./src/shared/globalState/reactContext.ts"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",

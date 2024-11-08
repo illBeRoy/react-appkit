@@ -64,6 +64,9 @@ export default function IndexWindow() {
         >
           Close Popup
         </button>
+        <button onClick={() => navigation.popup('/counter')}>
+          Open a counter window
+        </button>
         <button onClick={() => quit()}>Close app</button>
       </div>
     </>

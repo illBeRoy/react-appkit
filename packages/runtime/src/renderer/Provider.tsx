@@ -1,14 +1,27 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { show } from '@react-appkit/runtime/main/api/window';
+import { RendererGlobalStateProvider } from './RendererGlobalStateProvider';
 
 export interface Props {
   children: React.ReactNode;
 }
 
 export const RendererProcessProvider = ({ children }: Props) => {
-  useEffect(() => {
-    show();
-  }, []);
+  const [globalStateReady, setGlobalStateReady] = useState(false);
 
-  return children;
+  useEffect(() => {
+    if (globalStateReady) {
+      show();
+    }
+  }, [globalStateReady]);
+
+  return (
+    <RendererGlobalStateProvider
+      onReady={() => {
+        setGlobalStateReady(true);
+      }}
+    >
+      {children}
+    </RendererGlobalStateProvider>
+  );
 };

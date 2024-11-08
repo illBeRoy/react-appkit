@@ -9,7 +9,8 @@
     "./routing": "./src/routing.tsx",
     "./devtools": "./src/devtools.tsx",
     "./tray": "./src/tray.ts",
-    "./hotkeys": "./src/hotkeys.ts"
+    "./hotkeys": "./src/hotkeys.ts",
+    "./global": "./src/global.ts"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",

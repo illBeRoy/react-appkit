@@ -67,7 +67,9 @@ const WindowTitle = ({
       setClosable(closable);
     }
 
-    return () => setClosable(true);
+    return () => {
+      setClosable(true);
+    };
   }, [closable]);
 
   useEffect(() => {
@@ -75,7 +77,9 @@ const WindowTitle = ({
       setMinimizable(minimizable);
     }
 
-    return () => setMinimizable(true);
+    return () => {
+      setMinimizable(true);
+    };
   }, [minimizable]);
 
   useEffect(() => {
@@ -83,7 +87,9 @@ const WindowTitle = ({
       setMaximizable(maximizable);
     }
 
-    return () => setMaximizable(true);
+    return () => {
+      setMaximizable(true);
+    };
   }, [maximizable]);
 
   return null;
@@ -130,7 +136,9 @@ const WindowResizable = ({ resizable }: WindowResizableProps) => {
   useEffect(() => {
     setResizable(resizable);
 
-    return () => setResizable(true);
+    return () => {
+      setResizable(true);
+    };
   }, [resizable]);
 
   return null;
@@ -146,7 +154,9 @@ const WindowMovable = ({ movable }: WindowMovableProps) => {
   useEffect(() => {
     setMovable(movable);
 
-    return () => setMovable(true);
+    return () => {
+      setMovable(true);
+    };
   }, [movable]);
 
   return null;
@@ -158,7 +168,9 @@ const WindowAlwaysOnTop = () => {
   useEffect(() => {
     setAlwaysOnTop(true);
 
-    return () => setAlwaysOnTop(false);
+    return () => {
+      setAlwaysOnTop(false);
+    };
   }, []);
 
   return null;
@@ -170,7 +182,9 @@ const WindowFullscreen = () => {
   useEffect(() => {
     setFullScreen(true);
 
-    return () => setFullScreen(false);
+    return () => {
+      setFullScreen(false);
+    };
   }, []);
 
   return null;
@@ -186,7 +200,9 @@ const WindowTaskbar = ({ show }: WindowTaskbarProps) => {
   useEffect(() => {
     setShowInTaskbar(show);
 
-    return () => setShowInTaskbar(true);
+    return () => {
+      setShowInTaskbar(true);
+    };
   }, [show]);
 
   return null;
