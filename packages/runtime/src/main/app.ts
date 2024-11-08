@@ -1,10 +1,11 @@
-import { app } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
 import { renderTray } from './tray/renderer';
 import { registerHotkeys } from './hotkeys/registerHotkeys';
 import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { createNewWindow } from './api/window';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
+import { globalStateUpdatesPublisher } from './globalState/store';
 
 export interface AppConfig {
   userActions?: Array<{
@@ -41,6 +42,12 @@ export function createApp(config: AppConfig) {
       }
 
       startIpcBridge(actionsRegistry);
+
+      globalStateUpdatesPublisher.on('change', () =>
+        BrowserWindow.getAllWindows().forEach((window) =>
+          window.webContents.send('globalStateChange'),
+        ),
+      );
 
       if (config.trayComponent) {
         renderTray(config.trayComponent);

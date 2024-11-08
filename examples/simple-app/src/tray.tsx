@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Tray, TrayMenu, TrayMenuItem } from '@react-appkit/sdk/tray';
 import { quit } from '@react-appkit/sdk/app';
 import glyphPng from './assets/glyph.png';
+import { useGlobalState } from '@react-appkit/sdk/global';
 
 export default function ApplicationTray() {
   const [checked, setChecked] = useState(false);
   const [option, setOption] = useState(0);
+  const [counter, setCounter] = useGlobalState('counter', () => 0);
 
   return (
     <Tray icon={glyphPng}>
@@ -15,6 +17,10 @@ export default function ApplicationTray() {
           enabled={false}
         />
         <TrayMenuItem.Separator />
+        <TrayMenuItem.Button
+          label={`Counter: ${counter}`}
+          onClick={() => setCounter(counter + 1)}
+        />
         <TrayMenuItem.Checkbox
           label="Check Me"
           checked={checked}
