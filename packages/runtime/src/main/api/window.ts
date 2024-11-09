@@ -176,6 +176,7 @@ export const createNewWindow = async (
   });
 
   if (process.env.DEBUG_RENDERER === 'true') {
+    console.log('Opening devtools');
     window.show();
     window.webContents.openDevTools();
   }

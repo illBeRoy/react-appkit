@@ -23,7 +23,7 @@ export async function buildMain(workDir: string) {
         fileName: 'entrypoint',
       },
       rollupOptions: {
-        external: ['electron', 'node:path'],
+        external: ['electron', /node:/],
         output: {
           manualChunks: {},
         },

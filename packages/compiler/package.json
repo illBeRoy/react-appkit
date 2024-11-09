@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "bun build src/build.ts src/dev.ts --target node --outdir dist --packages external"
+    "build": "bun build src/build.ts src/dev.ts src/pack.ts --target node --outdir dist --packages external"
   },
   "files": [
     "dist",
@@ -11,7 +11,8 @@
   ],
   "bin": {
     "react-appkit-dev": "dist/dev.js",
-    "react-appkit-build": "dist/build.js"
+    "react-appkit-build": "dist/build.js",
+    "react-appkit-pack": "dist/pack.js"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
@@ -26,6 +27,7 @@
     "@react-appkit/runtime": "workspace:*",
     "@vitejs/plugin-react": "^4.3.3",
     "electron": "^33.0.2",
+    "electron-builder": "^25.1.8",
     "vite": "^5.4.10"
   }
 }

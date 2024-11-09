@@ -8,7 +8,6 @@ export default function CounterWindow() {
     <>
       <Window>
         <Window.Title>Counter</Window.Title>
-        <Window.Resizable resizable={false} />
         <Window.Size width={200} height={200} />
         <Window.Position x={'50%'} y={'50%'} origin="center" />
       </Window>

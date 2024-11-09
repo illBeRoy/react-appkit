@@ -1,5 +1,6 @@
 {
   "name": "@react-appkit/simple-app-example",
+  "version": "1.0.0",
   "private": true,
   "main": "dist/main/entrypoint.js",
   "scripts": {
@@ -7,7 +8,6 @@
     "dev:debug": "react-appkit-build && DEBUG_RENDERER=true react-appkit-dev"
   },
   "devDependencies": {
-    "@react-appkit/compiler": "workspace:*",
     "@react-appkit/eslint-config": "workspace:*",
     "@types/bun": "latest",
     "@types/react": "^18.3.12",
@@ -17,6 +17,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@react-appkit/compiler": "workspace:*",
     "@react-appkit/sdk": "workspace:*",
     "react": "^18.3.1"
   }
