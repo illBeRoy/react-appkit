@@ -57,6 +57,24 @@ async function main() {
     config.hotkeys = hotkeysModule.default.build();
   }
 
+  const maybeStartupModule = import.meta.glob('./src/startup.ts');
+  if (maybeStartupModule?.['./src/startup.ts']) {
+    const startupModule = await maybeStartupModule['./src/startup.ts']();
+    if (
+      startupModule &&
+      typeof startupModule === 'object' &&
+      'default' in startupModule &&
+      typeof startupModule.default === 'function'
+    ) {
+      config.startupFunction =
+        startupModule.default as () => void | Promise<void>;
+    } else {
+      throw new Error(
+        'The ./src/startup.ts file must export a default function. The function may be async. The function is called before the app starts running.',
+      );
+    }
+  }
+
   await createApp(config).start();
 }
 

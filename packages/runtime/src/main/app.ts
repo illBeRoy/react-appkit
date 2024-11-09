@@ -15,6 +15,7 @@ export interface AppConfig {
   }>;
   trayComponent?: React.ComponentType;
   hotkeys?: Map<string, () => void | Promise<void>>;
+  startupFunction?: () => void | Promise<void>;
 }
 
 export function createApp(config: AppConfig) {
@@ -35,6 +36,10 @@ export function createApp(config: AppConfig) {
             );
           },
         );
+      }
+
+      if (config.startupFunction) {
+        await config.startupFunction();
       }
 
       if (config.hotkeys) {
