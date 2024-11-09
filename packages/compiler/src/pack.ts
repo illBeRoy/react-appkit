@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import electronBuilder from 'electron-builder';
-import { AppConfigSchema } from '../../runtime/src/shared/config'; // temp fix: since we're running bun build --packages external, we're using relative import instead of package name to trick bun to bundle it with the script
-import { build } from './build';
-import { templateFile } from './utils/templateFile';
 import assert from 'node:assert';
 import { parseArgs } from 'node:util';
+import electronBuilder from 'electron-builder';
+import { AppConfigSchema } from '../../runtime/src/shared/config'; // temp fix: since we're running bun build --packages external, we're using relative import instead of package name to trick bun to bundle it with the script
+import { templateFile } from './utils/templateFile';
+import { buildAll } from './builders';
 
 export async function pack(
   workDir: string,
@@ -28,7 +28,7 @@ export async function pack(
   }
 
   if (!skipBuild) {
-    await build(workDir);
+    await buildAll(workDir);
   }
 
   const configModule = await import(
@@ -86,21 +86,58 @@ export async function pack(
     targets = electronBuilder.Platform.current().createTarget();
   }
 
+  const prePackageDir = path.join(workDir, '.bin');
+
+  await fs.rm(prePackageDir, { recursive: true, force: true });
+  await fs.mkdir(prePackageDir, { recursive: true });
+  await fs.mkdir(path.join(prePackageDir, 'dist'), { recursive: true });
+  await Promise.all([
+    await fs.cp(
+      path.join(workDir, 'dist', 'main'),
+      path.join(prePackageDir, 'dist', 'main'),
+      { recursive: true },
+    ),
+    await fs.cp(
+      path.join(workDir, 'dist', 'preload'),
+      path.join(prePackageDir, 'dist', 'preload'),
+      { recursive: true },
+    ),
+    await fs.cp(
+      path.join(workDir, 'dist', 'renderer'),
+      path.join(prePackageDir, 'dist', 'renderer'),
+      { recursive: true },
+    ),
+    await fs.writeFile(
+      path.join(prePackageDir, 'package.json'),
+      await templateFile('pkg.json'),
+    ),
+    await fs.writeFile(
+      path.join(prePackageDir, 'index.js'),
+      await templateFile('index.js'),
+    ),
+  ]);
+
   await electronBuilder.build({
-    projectDir: workDir,
+    projectDir: prePackageDir,
     config: {
       appId: appConfig.data.id,
       productName: appConfig.data.displayName,
-      icon: './dist/resources/icon.png',
-      files: ['dist/main', 'dist/preload', 'dist/renderer', 'dist/resources'],
+      icon: path.join(workDir, '/dist/resources/icon.png'),
+      files: ['dist', 'index.js'],
       electronVersion,
       directories: {
-        output: './dist/packages',
-        buildResources: './dist/resources',
+        output: path.join(workDir, 'dist', 'binaries'),
+        buildResources: path.join(workDir, 'dist', 'resources'),
       },
     },
     targets,
   });
+
+  // await fs.rm(prePackageDir, { recursive: true, force: true });
+
+  console.log(
+    'Application binaries created successfully under "dist/binaries"',
+  );
 }
 
 if (require.main === module) {

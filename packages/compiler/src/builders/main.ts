@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import path from 'node:path';
 import * as vite from 'vite';
 import { externalizeMainProcessDeps, virtualFiles } from '../utils/vite';

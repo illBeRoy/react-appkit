@@ -1,16 +1,8 @@
 #!/usr/bin/env node
-import { buildMain } from './builders/main';
-import { buildRenderer } from './builders/renderer';
-import { buildPreload } from './builders/preload';
-import { buildResources } from './builders/resources';
+import { buildAll } from './builders';
 
 export async function build(workDir: string) {
-  await Promise.all([
-    buildMain(workDir),
-    buildRenderer(workDir),
-    buildPreload(workDir),
-    buildResources(workDir),
-  ]);
+  return buildAll(workDir);
 }
 
 if (require.main === module) {

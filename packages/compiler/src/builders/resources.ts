@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import * as vite from 'vite';
