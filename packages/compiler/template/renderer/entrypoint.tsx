@@ -30,9 +30,10 @@ function main() {
     const isLayout = /\/\[layout\]\.(ts|tsx|js|jsx)$/.test(filePath);
 
     if (isLayout) {
-      const parentPath = filePath
-        .slice('/src/windows'.length)
-        .replace(/\[layout\]\.(ts|tsx|js|jsx)$/, '');
+      const parentPath =
+        filePath
+          .slice('/src/windows'.length)
+          .replace(/\/\[layout\]\.(ts|tsx|js|jsx)$/, '') || '/';
       opts.layouts.push({
         path: parentPath,
         component: exportedModule.default as React.ComponentType<any>,

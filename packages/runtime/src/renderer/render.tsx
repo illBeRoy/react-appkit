@@ -55,10 +55,8 @@ export const render = (options: RenderOptions) => {
     );
 
     if (matchingLayout) {
-      const pathRelativeToLayout = `/${route.path.slice(matchingLayout.path!.length)}`;
-
       matchingLayout.children?.push({
-        path: pathRelativeToLayout,
+        path: route.path,
         Component: () => <route.component />,
       });
     } else {
