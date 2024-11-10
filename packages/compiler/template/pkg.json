@@ -1,5 +1,6 @@
 {
-  "name": "[[appName]]",
+  "name": "[[pkgName]]",
+  "productName": "[[appName]]",
   "version": "1.0.0",
   "dependencies": {}
 }

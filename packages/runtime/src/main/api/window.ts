@@ -175,12 +175,12 @@ export const createNewWindow = async (
     },
   });
 
+  window.loadFile('dist/renderer/index.html', { hash: windowPath });
+
   if (process.env.DEBUG_RENDERER === 'true') {
     window.show();
     window.webContents.openDevTools();
   }
-
-  window.loadFile('dist/renderer/index.html', { hash: windowPath });
 
   return { id: window.id };
 };

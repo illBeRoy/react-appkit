@@ -16,6 +16,7 @@ import {
   show,
   hide,
 } from '@react-appkit/runtime/main/api/window';
+import { useLocation } from 'react-router-dom';
 
 const InWindowContext = createContext<boolean>(false);
 
@@ -36,8 +37,21 @@ export interface WindowProps {
 }
 
 export const Window = ({ children }: WindowProps) => {
+  // Since Window components can be rendered either in a layout or in a route,
+  // we need to ensure that the layout windows are reapplied when the route changes.
+  // This is due to the fact that a route can override the layout's Window, which is ok,
+  // but when we move to another route that does not override the layout's Window,
+  // we need to reapply the layout's Windows.
+  // Using the pathname as a key ensures that the Window components are reapplied with each route change.
+  const keyToEnsureReapplyingOfLayoutWindows = useLocation().pathname;
+
   return (
-    <InWindowContext.Provider value={true}>{children}</InWindowContext.Provider>
+    <InWindowContext.Provider
+      key={keyToEnsureReapplyingOfLayoutWindows}
+      value={true}
+    >
+      {children}
+    </InWindowContext.Provider>
   );
 };
 

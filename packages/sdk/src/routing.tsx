@@ -45,12 +45,12 @@ export const useNavigation = () => {
   };
 };
 
-export const usePathParams = <T extends string = string>() => {
-  const params = useReactRouterParams<T>();
-  return params;
-};
-
 export const usePath = () => {
   const path = useReactRouterLocation();
   return path.pathname;
+};
+
+export const usePathParams = <T extends string = string>() => {
+  const params = useReactRouterParams<T>();
+  return params;
 };

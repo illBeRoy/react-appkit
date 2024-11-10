@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
 import { renderTray } from './tray/renderer';
 import { registerHotkeys } from './hotkeys/registerHotkeys';
@@ -57,6 +57,8 @@ export function createApp(config: AppConfig) {
       if (config.trayComponent) {
         renderTray(config.trayComponent);
       }
+
+      // Menu.setApplicationMenu(null);
 
       await createNewWindow('/');
     });

@@ -110,7 +110,8 @@ export async function pack(
     await fs.writeFile(
       path.join(prePackageDir, 'package.json'),
       await templateFile('pkg.json', {
-        appName: appConfig.data.displayName.replaceAll(' ', '-').toLowerCase(),
+        appName: appConfig.data.displayName,
+        pkgName: appConfig.data.displayName.replaceAll(' ', '-').toLowerCase(),
       }),
     ),
     await fs.writeFile(
