@@ -222,7 +222,6 @@ const WindowTaskbar = ({ show }: WindowTaskbarProps) => {
   return null;
 };
 
-export const closeWindow = (window?: WindowHandler) => close(window);
 export const showWindow = (window?: WindowHandler) => show(window);
 export const hideWindow = (window?: WindowHandler) => hide(window);
 

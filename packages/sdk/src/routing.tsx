@@ -4,22 +4,32 @@ import {
   useParams as useReactRouterParams,
   useLocation as useReactRouterLocation,
 } from 'react-router-dom';
-import { createNewWindow } from '@react-appkit/runtime/main/api/window';
+import {
+  createNewWindow,
+  close as closeWindow,
+  type WindowHandler,
+} from '@react-appkit/runtime/main/api/window';
 
 export interface LinkProps {
   to: string;
-  popup?: boolean;
+  target?: LinkTarget;
   children: React.ReactNode;
 }
 
-export const Link = ({ to, popup = false, children }: LinkProps) => {
+export type LinkTarget = '_blank' | '_top' | (string & {});
+
+export const Link = ({ to, target, children }: LinkProps) => {
   return (
     <ReactRouterLink
       to={to}
       onClick={(e) => {
-        if (popup) {
+        if (target) {
           e.preventDefault();
-          createNewWindow(to);
+          if (target === '_blank') {
+            createNewWindow(to);
+          } else {
+            createNewWindow(to, { channel: target });
+          }
         }
       }}
     >
@@ -35,13 +45,29 @@ export const useNavigation = () => {
     rrNavigate(to);
   };
 
-  const popup = (to: string) => {
-    return createNewWindow(to);
+  const popup = (to: string, { target }: { target?: LinkTarget } = {}) => {
+    const ifBlankThenNoChannel = target === '_blank' ? undefined : target;
+    return createNewWindow(to, { channel: ifBlankThenNoChannel });
+  };
+
+  const close = ({
+    window,
+    target,
+  }: {
+    window?: WindowHandler;
+    target?: LinkTarget;
+  } = {}) => {
+    const ifBlankThenNoChannel = target === '_blank' ? undefined : target;
+    return closeWindow({
+      window,
+      windowAtChannel: ifBlankThenNoChannel,
+    });
   };
 
   return {
     navigate,
     popup,
+    close,
   };
 };
 

@@ -1,14 +1,11 @@
-import { BrowserWindow, screen, app } from 'electron';
-import path from 'node:path';
+import { BrowserWindow, screen } from 'electron';
 import { useSender } from '../actionsEngine/context';
+import { windowManager, type WindowHandler } from '../windows/windowManager';
 
-class NoWindowError extends Error {
-  name = 'NoWindowError';
-  message = 'No window found';
-}
-
-export interface WindowHandler {
-  id: number;
+class NoWindowContextError extends Error {
+  name = 'NoWindowContextError';
+  message =
+    'Cannot find current window context. Was this action called from a window component?';
 }
 
 const useCurrentWindow = () => {
@@ -16,20 +13,14 @@ const useCurrentWindow = () => {
   const window = BrowserWindow.fromWebContents(sender);
 
   if (!window) {
-    throw new NoWindowError();
+    throw new NoWindowContextError();
   }
 
   return window;
 };
 
 const fromWindowHandler = (windowHandler: WindowHandler) => {
-  const window = BrowserWindow.fromId(windowHandler.id);
-
-  if (!window) {
-    throw new NoWindowError();
-  }
-
-  return window;
+  return windowManager.getWindow({ withId: windowHandler.id });
 };
 
 export const setTitle = async (title: string) => {
@@ -153,34 +144,29 @@ export const show = async (windowHandler?: WindowHandler) => {
   window.show();
 };
 
-export const close = async (windowHandler?: WindowHandler) => {
-  const window = windowHandler
-    ? fromWindowHandler(windowHandler)
-    : useCurrentWindow();
+export const close = async (opts: {
+  window?: WindowHandler;
+  windowAtChannel?: string;
+}) => {
+  if (!opts.window && !opts.windowAtChannel) {
+    const currentWindow = useCurrentWindow();
+    windowManager.closeWindow({ withId: currentWindow.id });
+    return;
+  }
 
-  window.close();
+  windowManager.closeWindow({
+    withId: opts.window?.id,
+    atChannel: opts.windowAtChannel,
+  });
 };
 
 export const createNewWindow = async (
   windowPath: string,
+  opts: {
+    channel?: string;
+  } = {},
 ): Promise<WindowHandler> => {
-  const window = new BrowserWindow({
-    width: 800,
-    height: 600,
-    show: false,
-    center: true,
-    webPreferences: {
-      preload: path.join(app.getAppPath(), 'dist/preload/index.js'),
-      sandbox: false,
-    },
-  });
-
-  window.loadFile('dist/renderer/index.html', { hash: windowPath });
-
-  if (process.env.DEBUG_RENDERER === 'true') {
-    window.show();
-    window.webContents.openDevTools();
-  }
-
-  return { id: window.id };
+  return windowManager.openWindow(windowPath, { channel: opts.channel });
 };
+
+export type { WindowHandler };

@@ -6,6 +6,7 @@ import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { createNewWindow } from './api/window';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
 import { globalStateUpdatesPublisher } from './globalState/store';
+import { windowManager } from './windows/windowManager';
 
 export interface AppConfig {
   userActions?: Array<{
@@ -60,7 +61,7 @@ export function createApp(config: AppConfig) {
 
       // Menu.setApplicationMenu(null);
 
-      await createNewWindow('/');
+      windowManager.openWindow('/', { channel: '_top' });
     });
 
     app.on('window-all-closed', () => {

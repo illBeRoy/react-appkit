@@ -1,6 +1,9 @@
-import { closeWindow, Window } from '@react-appkit/sdk/window';
+import { Window } from '@react-appkit/sdk/window';
+import { useNavigation } from '@react-appkit/sdk/routing';
 
 export default function PopupWindow() {
+  const navigation = useNavigation();
+
   return (
     <>
       <Window>
@@ -15,7 +18,7 @@ export default function PopupWindow() {
       <div>
         This is popup! Important things go here.
         <br />
-        <button onClick={() => closeWindow()}>Close popup</button>
+        <button onClick={() => navigation.close()}>Close popup</button>
       </div>
     </>
   );
