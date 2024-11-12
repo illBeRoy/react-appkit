@@ -16,6 +16,12 @@ export const AppConfigSchema = z
       .array(z.enum(['win', 'mac', 'linux']))
       .describe('The build targets for the app')
       .optional(),
+    singleInstance: z
+      .boolean()
+      .describe(
+        'Whether multiple instances of the app can be running at the same time. If false, reopening the app will focus the existing instance.',
+      )
+      .optional(),
   })
   .strict();
 

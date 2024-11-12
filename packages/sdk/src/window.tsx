@@ -12,7 +12,6 @@ import {
   setClosable,
   setMinimizable,
   setMaximizable,
-  close,
   show,
   hide,
 } from '@react-appkit/runtime/main/api/window';

@@ -58,6 +58,7 @@ export const useNavigation = () => {
     target?: LinkTarget;
   } = {}) => {
     const ifBlankThenNoChannel = target === '_blank' ? undefined : target;
+
     return closeWindow({
       window,
       windowAtChannel: ifBlankThenNoChannel,

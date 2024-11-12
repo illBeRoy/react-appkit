@@ -36,7 +36,7 @@ function main() {
           .replace(/\/\[layout\]\.(ts|tsx|js|jsx)$/, '') || '/';
       opts.layouts.push({
         path: parentPath,
-        component: exportedModule.default as React.ComponentType<any>,
+        component: exportedModule.default as React.ComponentType<any>, // eslint-disable-line
       });
     } else {
       const normalizedPath = filePath

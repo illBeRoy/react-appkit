@@ -1,17 +1,21 @@
-import { createApp, type AppConfig } from '@react-appkit/runtime/main/app';
+import {
+  createApp,
+  type AppRuntimeOptions,
+} from '@react-appkit/runtime/main/app';
+import { AppConfigSchema } from '@react-appkit/runtime/shared/config';
 
 async function main() {
-  const config: AppConfig = {};
+  const opts: AppRuntimeOptions = {};
 
   const srcActionsAllModules = import.meta.glob('./src/actions/*.ts');
 
-  config.userActions = [];
+  opts.userActions = [];
 
   Object.entries(srcActionsAllModules).forEach(async ([filename, module]) => {
     const allExported = (await module()) as Record<string, unknown>; // all modules in the API folder are ESM so we can assume they're all Records
 
     Object.entries(allExported).forEach(([fnName, exported]) => {
-      config.userActions?.push({
+      opts.userActions?.push({
         fileName: filename,
         exportedValueName: fnName,
         exportedValue: exported,
@@ -33,7 +37,7 @@ async function main() {
       );
     }
 
-    config.trayComponent = trayModule.default as React.ComponentType;
+    opts.trayComponent = trayModule.default as React.ComponentType;
   }
 
   const maybeHotkeysModule = import.meta.glob('./src/hotkeys.ts');
@@ -54,7 +58,7 @@ async function main() {
       );
     }
 
-    config.hotkeys = hotkeysModule.default.build();
+    opts.hotkeys = hotkeysModule.default.build();
   }
 
   const maybeStartupModule = import.meta.glob('./src/startup.ts');
@@ -66,7 +70,7 @@ async function main() {
       'default' in startupModule &&
       typeof startupModule.default === 'function'
     ) {
-      config.startupFunction =
+      opts.startupFunction =
         startupModule.default as () => void | Promise<void>;
     } else {
       throw new Error(
@@ -75,7 +79,14 @@ async function main() {
     }
   }
 
-  await createApp(config).start();
+  const appConfig = AppConfigSchema.parse(
+    // @ts-expect-error this file should always exist in the project directory (otherwise the app wouldn't build)
+    await import('./app.config.ts').then((exported) => exported.default),
+  );
+
+  opts.singleInstance = appConfig.singleInstance ?? false;
+
+  await createApp(opts).start();
 }
 
 main().catch((err) => {

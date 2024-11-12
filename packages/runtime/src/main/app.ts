@@ -1,14 +1,13 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
 import { renderTray } from './tray/renderer';
 import { registerHotkeys } from './hotkeys/registerHotkeys';
 import { exposeBuiltinApisAsActionsInto } from './builtinApis';
-import { createNewWindow } from './api/window';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
 import { globalStateUpdatesPublisher } from './globalState/store';
 import { windowManager } from './windows/windowManager';
 
-export interface AppConfig {
+export interface AppRuntimeOptions {
   userActions?: Array<{
     fileName: string;
     exportedValueName: string;
@@ -17,17 +16,38 @@ export interface AppConfig {
   trayComponent?: React.ComponentType;
   hotkeys?: Map<string, () => void | Promise<void>>;
   startupFunction?: () => void | Promise<void>;
+  singleInstance?: boolean;
 }
 
-export function createApp(config: AppConfig) {
+export function createApp(opts: AppRuntimeOptions) {
   async function start() {
+    if (opts.singleInstance) {
+      const gotTheLock = app.requestSingleInstanceLock();
+
+      if (!gotTheLock) {
+        app.quit();
+      }
+
+      app.on('second-instance', () => {
+        const mainWindowIfExists = windowManager.getWindow({
+          atChannel: '_top',
+        });
+
+        if (mainWindowIfExists) {
+          mainWindowIfExists.focus();
+        } else {
+          windowManager.openWindow('/', { channel: '_top' });
+        }
+      });
+    }
+
     app.whenReady().then(async () => {
       const actionsRegistry = createActionsRegistry();
 
       await exposeBuiltinApisAsActionsInto(actionsRegistry);
 
-      if (config.userActions) {
-        config.userActions.forEach(
+      if (opts.userActions) {
+        opts.userActions.forEach(
           ({ fileName, exportedValueName, exportedValue }) => {
             actionsRegistry.registerAction(
               'user',
@@ -39,12 +59,12 @@ export function createApp(config: AppConfig) {
         );
       }
 
-      if (config.startupFunction) {
-        await config.startupFunction();
+      if (opts.startupFunction) {
+        await opts.startupFunction();
       }
 
-      if (config.hotkeys) {
-        registerHotkeys(config.hotkeys);
+      if (opts.hotkeys) {
+        registerHotkeys(opts.hotkeys);
       }
 
       startIpcBridge(actionsRegistry);
@@ -55,8 +75,8 @@ export function createApp(config: AppConfig) {
         ),
       );
 
-      if (config.trayComponent) {
-        renderTray(config.trayComponent);
+      if (opts.trayComponent) {
+        renderTray(opts.trayComponent);
       }
 
       // Menu.setApplicationMenu(null);
