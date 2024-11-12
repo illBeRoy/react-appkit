@@ -1,6 +1,7 @@
 import { Link, useNavigation } from '@react-appkit/sdk/routing';
 import { env, quit } from '@react-appkit/sdk/app';
-import { helloWorld, iThrow } from '../actions/hello';
+import { alert } from '@react-appkit/sdk/dialog';
+import { helloWorld, iThrow, selectAndReadAFile } from '../actions/hello';
 import styles from './index.module.css';
 
 export default function IndexWindow() {
@@ -24,6 +25,15 @@ export default function IndexWindow() {
         }}
       >
         Action iThrowError
+      </button>
+      <button
+        onClick={() => {
+          selectAndReadAFile().then((res) =>
+            alert(res, { skin: 'info', buttons: ['Coolio'] }),
+          );
+        }}
+      >
+        Action: Select and read a file
       </button>
       <button
         onClick={async () => {

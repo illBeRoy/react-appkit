@@ -12,7 +12,8 @@
     "./hotkeys": "./src/hotkeys.ts",
     "./global": "./src/global.ts",
     "./config": "./src/config.ts",
-    "./layout": "./src/layout.ts"
+    "./layout": "./src/layout.ts",
+    "./dialog": "./src/dialog.ts"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
