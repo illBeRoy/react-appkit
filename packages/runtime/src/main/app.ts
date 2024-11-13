@@ -1,11 +1,12 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu, MenuItem } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
 import { renderTray } from './tray/renderer';
-import { registerHotkeys } from './hotkeys/registerHotkeys';
+import { registerHotkey, registerHotkeys } from './hotkeys/registerHotkeys';
 import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
 import { globalStateUpdatesPublisher } from './globalState/store';
 import { windowManager } from './windows/windowManager';
+import { defaultMacMenu, defaultMenu } from './menu/defaults';
 
 export interface AppRuntimeOptions {
   userActions?: Array<{
@@ -20,7 +21,7 @@ export interface AppRuntimeOptions {
 }
 
 export function createApp(opts: AppRuntimeOptions) {
-  async function start() {
+  function start() {
     if (opts.singleInstance) {
       const gotTheLock = app.requestSingleInstanceLock();
 
@@ -63,6 +64,10 @@ export function createApp(opts: AppRuntimeOptions) {
         await opts.startupFunction();
       }
 
+      if (process.platform === 'darwin') {
+        registerHotkey('CmdOrCtrl+Q', () => app.quit());
+      }
+
       if (opts.hotkeys) {
         registerHotkeys(opts.hotkeys);
       }
@@ -79,7 +84,9 @@ export function createApp(opts: AppRuntimeOptions) {
         renderTray(opts.trayComponent);
       }
 
-      // Menu.setApplicationMenu(null);
+      Menu.setApplicationMenu(
+        process.platform === 'darwin' ? defaultMacMenu : defaultMenu,
+      );
 
       windowManager.openWindow('/', { channel: '_top' });
     });
