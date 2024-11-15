@@ -67,8 +67,6 @@ export const render = (options: RenderOptions) => {
     }
   });
 
-  console.log(layoutRoutes, standaloneRoutes);
-
   const router = createHashRouter([...layoutRoutes, ...standaloneRoutes]);
 
   function App() {

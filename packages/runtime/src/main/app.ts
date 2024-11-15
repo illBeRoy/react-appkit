@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, MenuItem } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
 import { renderTray } from './tray/renderer';
 import { registerHotkey, registerHotkeys } from './hotkeys/registerHotkeys';
@@ -18,6 +18,7 @@ export interface AppRuntimeOptions {
   hotkeys?: Map<string, () => void | Promise<void>>;
   startupFunction?: () => void | Promise<void>;
   singleInstance?: boolean;
+  openWindowOnStartup?: boolean;
 }
 
 export function createApp(opts: AppRuntimeOptions) {
@@ -88,7 +89,9 @@ export function createApp(opts: AppRuntimeOptions) {
         process.platform === 'darwin' ? defaultMacMenu : defaultMenu,
       );
 
-      windowManager.openWindow('/', { channel: '_top' });
+      if (opts.openWindowOnStartup !== false) {
+        windowManager.openWindow('/', { channel: '_top' });
+      }
     });
 
     app.on('window-all-closed', () => {

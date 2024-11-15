@@ -14,8 +14,11 @@ import {
   setMaximizable,
   show,
   hide,
+  createNewWindow as createNewWindowInternal,
+  close as closeWindowInternal,
 } from '@react-appkit/runtime/main/api/window';
 import { useLocation } from 'react-router-dom';
+import { allowImportingOnlyOnMainProcess } from './utils/importBlockers';
 
 const InWindowContext = createContext<boolean>(false);
 
@@ -224,7 +227,15 @@ const WindowTaskbar = ({ show }: WindowTaskbarProps) => {
 export const showWindow = (window?: WindowHandler) => show(window);
 export const hideWindow = (window?: WindowHandler) => hide(window);
 
-export type { WindowHandler };
+export const createNewWindow = allowImportingOnlyOnMainProcess(
+  createNewWindowInternal,
+  'In order to open new windows from other windows, please import "useRouter" or the "<Link />" component from "@react-appkit/runtime/renderer/routing"',
+);
+
+export const closeWindow = allowImportingOnlyOnMainProcess(
+  closeWindowInternal,
+  'In order to close windows from other windows, please import "useRouter" from "@react-appkit/runtime/renderer/routing"',
+);
 
 Window.Title = WindowTitle;
 Window.Size = WindowSize;
@@ -234,3 +245,5 @@ Window.Movable = WindowMovable;
 Window.AlwaysOnTop = WindowAlwaysOnTop;
 Window.Fullscreen = WindowFullscreen;
 Window.Taskbar = WindowTaskbar;
+
+export type { WindowHandler };

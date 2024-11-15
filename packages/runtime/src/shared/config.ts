@@ -22,6 +22,12 @@ export const AppConfigSchema = z
         'Whether multiple instances of the app can be running at the same time. If false, reopening the app will focus the existing instance.',
       )
       .optional(),
+    openWindowOnStartup: z
+      .boolean()
+      .describe(
+        'Whether to open the main window on startup. If false, the app will start in the background. You can still open the main window by calling the "openWindow" action.',
+      )
+      .optional(),
   })
   .strict();
 

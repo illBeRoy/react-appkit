@@ -56,6 +56,11 @@ const createWindowManager = () => {
       });
     }
 
+    const thisIsTheFirstWindow = BrowserWindow.getAllWindows().length === 1;
+    if (!channel && thisIsTheFirstWindow) {
+      channel = '_top';
+    }
+
     if (channel) {
       // set the channel mapping for the new window
       channelToWindowId.set(channel, window.id);
