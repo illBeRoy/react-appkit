@@ -16,6 +16,7 @@ import {
   hide,
   createNewWindow as createNewWindowInternal,
   close as closeWindowInternal,
+  setMenuBarVisibility,
 } from '@react-appkit/runtime/main/api/window';
 import { useLocation } from 'react-router-dom';
 import { allowImportingOnlyOnMainProcess } from './utils/importBlockers';
@@ -220,6 +221,24 @@ const WindowTaskbar = ({ show }: WindowTaskbarProps) => {
       setShowInTaskbar(true);
     };
   }, [show]);
+
+  return null;
+};
+
+export interface WindowMenuProps {
+  visible: boolean;
+}
+
+export const WindowMenu = ({ visible }: WindowMenuProps) => {
+  useWindowContext();
+
+  useEffect(() => {
+    setMenuBarVisibility(visible);
+
+    return () => {
+      setMenuBarVisibility(true);
+    };
+  }, [visible]);
 
   return null;
 };

@@ -128,6 +128,11 @@ export const setMaximizable = async (maximizable: boolean) => {
   window.setMaximizable(maximizable);
 };
 
+export const setMenuBarVisibility = async (visible: boolean) => {
+  const window = useCurrentWindow();
+  window.setMenuBarVisibility(visible);
+};
+
 export const hide = async (windowHandler?: WindowHandler) => {
   const window = windowHandler
     ? fromWindowHandler(windowHandler)

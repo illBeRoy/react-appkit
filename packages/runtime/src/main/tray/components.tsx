@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect } from 'react';
 import type { TrayManager } from './trayManager';
 import { useFirstRender, useUnmount } from '../nodeRenderer/hooks';
-import { Menu, MenuItem, RootMenuProvider } from '../menu/components';
+import { Menu, MenuItem, RootMenuProvider } from '../menu/base/components';
 
 export interface TrayProviderProps {
   manager: TrayManager;

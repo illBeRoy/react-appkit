@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef } from 'react';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from 'electron';
-import { useFirstRender, useUnmount } from '../nodeRenderer/hooks';
+import { useFirstRender, useUnmount } from '../../nodeRenderer/hooks';
 
 export interface MenuProps {
   children: React.ReactNode;

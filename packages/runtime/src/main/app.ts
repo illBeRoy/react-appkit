@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
 import { renderTray } from './tray/renderer';
 import { registerHotkey, registerHotkeys } from './hotkeys/registerHotkeys';
@@ -6,7 +6,7 @@ import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
 import { globalStateUpdatesPublisher } from './globalState/store';
 import { windowManager } from './windows/windowManager';
-import { defaultMacMenu, defaultMenu } from './menu/defaults';
+import { menuManager } from './menu/applicationMenu/menuManager';
 
 export interface AppRuntimeOptions {
   userActions?: Array<{
@@ -85,9 +85,7 @@ export function createApp(opts: AppRuntimeOptions) {
         renderTray(opts.trayComponent);
       }
 
-      Menu.setApplicationMenu(
-        process.platform === 'darwin' ? defaultMacMenu : defaultMenu,
-      );
+      menuManager.setMenu(null);
 
       if (opts.openWindowOnStartup !== false) {
         windowManager.openWindow('/', { channel: '_top' });
