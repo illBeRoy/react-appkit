@@ -6,7 +6,8 @@ import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
 import { globalStateUpdatesPublisher } from './globalState/store';
 import { windowManager } from './windows/windowManager';
-import { menuManager } from './menu/applicationMenu/menuManager';
+import { renderApplicationMenu } from './menu/applicationMenu/renderer';
+import { EmptyMenu } from './menu/applicationMenu/components';
 
 export interface AppRuntimeOptions {
   userActions?: Array<{
@@ -15,6 +16,7 @@ export interface AppRuntimeOptions {
     exportedValue: unknown;
   }>;
   trayComponent?: React.ComponentType;
+  applicationMenuComponent?: React.ComponentType;
   hotkeys?: Map<string, () => void | Promise<void>>;
   startupFunction?: () => void | Promise<void>;
   singleInstance?: boolean;
@@ -85,7 +87,7 @@ export function createApp(opts: AppRuntimeOptions) {
         renderTray(opts.trayComponent);
       }
 
-      menuManager.setMenu(null);
+      renderApplicationMenu(opts.applicationMenuComponent ?? EmptyMenu);
 
       if (opts.openWindowOnStartup !== false) {
         windowManager.openWindow('/', { channel: '_top' });

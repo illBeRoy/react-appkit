@@ -5,6 +5,7 @@ import {
   MenuItem as BaseMenuItem,
 } from '../base/components';
 import type { MenuManager } from './menuManager';
+import { useFirstRender } from '../../nodeRenderer/hooks';
 
 export interface MenuManagerProviderProps {
   manager: MenuManager;
@@ -12,6 +13,8 @@ export interface MenuManagerProviderProps {
 }
 
 const MenuManagerContext = createContext<MenuManager | null>(null);
+
+export const MenuManagerProvider = MenuManagerContext.Provider;
 
 export const useMenuManager = () => {
   const manager = useContext(MenuManagerContext);
@@ -29,6 +32,16 @@ export class MenuManagerContextError extends Error {
     'Cannot use <Menu /> components outside of the "./src/menu.tsx" file';
 }
 
+export const EmptyMenu = () => {
+  const manager = useMenuManager();
+
+  useFirstRender(() => {
+    manager.setMenu(null);
+  });
+
+  return null;
+};
+
 export interface ApplicationMenuProps {
   children: React.ReactNode;
 }
@@ -38,7 +51,7 @@ export const ApplicationMenu = ({ children }: ApplicationMenuProps) => {
 
   return (
     <RootMenuProvider onRootMenuChange={manager.setMenu}>
-      {children}
+      <BaseMenu>{children}</BaseMenu>
     </RootMenuProvider>
   );
 };
@@ -49,7 +62,7 @@ export interface MenuProps {
   isMacAppMenu?: boolean; // If true, the menu item will be used the default Mac app menu (the menu right next to the apple icon)
 }
 
-export const Menu = ({ children, title, isMacAppMenu }: MenuProps) => {
+export const Menu = ({ children, title, isMacAppMenu = false }: MenuProps) => {
   return (
     <BaseMenu label={`${isMacAppMenu ? '#MAC_APP_MENU::' : ''}${title}`}>
       {children}

@@ -40,6 +40,23 @@ async function main() {
     opts.trayComponent = trayModule.default as React.ComponentType;
   }
 
+  const maybeMenuModule = import.meta.glob('./src/menu.tsx');
+  if (maybeMenuModule?.['./src/menu.tsx']) {
+    const menuModule = await maybeMenuModule['./src/menu.tsx']();
+
+    if (
+      !menuModule ||
+      typeof menuModule !== 'object' ||
+      !('default' in menuModule)
+    ) {
+      throw new Error(
+        'The ./src/menu.tsx file must export a default component that contains the <ApplicationMenu /> component.',
+      );
+    }
+
+    opts.applicationMenuComponent = menuModule.default as React.ComponentType;
+  }
+
   const maybeHotkeysModule = import.meta.glob('./src/hotkeys.ts');
   if (maybeHotkeysModule?.['./src/hotkeys.ts']) {
     const hotkeysModule = await maybeHotkeysModule['./src/hotkeys.ts']();

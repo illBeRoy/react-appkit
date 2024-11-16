@@ -7,6 +7,7 @@
     "./main/app": "./src/main/app.ts",
     "./main/tray/components": "./src/main/tray/components.tsx",
     "./main/hotkeys/key": "./src/main/hotkeys/key.ts",
+    "./main/menu/applicationMenu/components": "./src/main/menu/applicationMenu/components.tsx",
     "./main/api/*": "./src/main/api/*.ts",
     "./renderer/render": "./src/renderer/render.tsx",
     "./renderer/layout": "./src/renderer/layout.ts",
@@ -32,6 +33,7 @@
     "nanoevents": "^9.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-error-boundary": "^4.1.2",
     "react-nil": "^1.2.0",
     "react-router-dom": "^6.28.0",
     "zod": "^3.23.8"

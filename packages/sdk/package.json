@@ -13,7 +13,8 @@
     "./global": "./src/global.ts",
     "./config": "./src/config.ts",
     "./layout": "./src/layout.ts",
-    "./dialog": "./src/dialog.ts"
+    "./dialog": "./src/dialog.ts",
+    "./menu": "./src/menu.ts"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
