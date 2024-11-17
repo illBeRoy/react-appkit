@@ -1,25 +1,19 @@
 import path from 'path';
-import fs from 'fs/promises';
+import fs from 'fs';
 import { fileURLToPath } from 'node:url';
 
 export const templateFile = (
   filePath: string,
   vars: Record<string, unknown> = {},
-) =>
-  fs
-    .readFile(
-      path.join(
-        fileURLToPath(import.meta.url),
-        '..',
-        '..',
-        'template',
-        filePath,
-      ),
-      'utf-8',
-    )
-    .then((fileContents) =>
-      Object.entries(vars).reduce(
-        (contents, [key, val]) => contents.replaceAll(`[[${key}]]`, `${val}`),
-        fileContents,
-      ),
-    );
+) => {
+  let fileContents = fs.readFileSync(
+    path.join(fileURLToPath(import.meta.url), '..', '..', 'template', filePath),
+    'utf-8',
+  );
+
+  for (const [key, val] of Object.entries(vars)) {
+    fileContents = fileContents.replaceAll(`[[${key}]]`, `${val}`);
+  }
+
+  return fileContents;
+};

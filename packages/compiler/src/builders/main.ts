@@ -9,7 +9,7 @@ export async function buildMain(workDir: string) {
     plugins: [
       virtualFiles({
         [path.join(workDir, 'entrypoint.ts')]:
-          await templateFile('main/entrypoint.ts'),
+          templateFile('main/entrypoint.ts'),
       }),
       externalizeMainProcessDeps(),
     ],

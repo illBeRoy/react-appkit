@@ -8,9 +8,7 @@ export async function buildPreload(workDir: string) {
     root: workDir,
     plugins: [
       virtualFiles({
-        [path.join(workDir, 'preload.ts')]: await templateFile(
-          'renderer/preload.ts',
-        ),
+        [path.join(workDir, 'preload.ts')]: templateFile('renderer/preload.ts'),
       }),
       externalizeMainProcessDeps(),
     ],

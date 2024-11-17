@@ -10,8 +10,8 @@ export async function buildRenderer(workDir: string) {
     base: './',
     plugins: [
       virtualFiles({
-        './entrypoint.tsx': await templateFile('renderer/entrypoint.tsx'),
-        './index.html': await templateFile('renderer/index.html'),
+        './entrypoint.tsx': templateFile('renderer/entrypoint.tsx'),
+        './index.html': templateFile('renderer/index.html'),
       }),
       removeAbsolutePaths(workDir),
       viteReact(),
