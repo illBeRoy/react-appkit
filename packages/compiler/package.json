@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "bun build src/build.ts src/dev.ts src/pack.ts --target node --outdir dist --packages external"
+    "build": "bun build src/build.ts src/start.ts src/dev.ts src/pack.ts --target node --outdir dist --packages external"
   },
   "files": [
     "dist",
     "template"
   ],
   "bin": {
+    "react-appkit-start": "dist/start.js",
     "react-appkit-dev": "dist/dev.js",
     "react-appkit-build": "dist/build.js",
     "react-appkit-pack": "dist/pack.js"
