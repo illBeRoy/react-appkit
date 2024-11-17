@@ -4,8 +4,7 @@
   "private": true,
   "main": "dist/main/entrypoint.js",
   "scripts": {
-    "dev": "react-appkit-build && react-appkit-dev",
-    "dev:debug": "react-appkit-build && DEBUG_RENDERER=true react-appkit-dev"
+    "dev": "react-appkit-dev"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",

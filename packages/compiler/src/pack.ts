@@ -6,7 +6,7 @@ import { parseArgs } from 'node:util';
 import electronBuilder from 'electron-builder';
 import { AppConfigSchema } from '../../runtime/src/shared/config'; // temp fix: since we're running bun build --packages external, we're using relative import instead of package name to trick bun to bundle it with the script
 import { templateFile } from './utils/templateFile';
-import { buildAll } from './builders';
+import { buildAllForProduction } from './builders';
 
 export async function pack(
   workDir: string,
@@ -28,7 +28,7 @@ export async function pack(
   }
 
   if (!skipBuild) {
-    await buildAll(workDir);
+    await buildAllForProduction(workDir);
   }
 
   const configModule = await import(

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-import { buildAll } from './builders';
+import { buildAllForProduction } from './builders';
 import { assertAppConfigExists } from './utils/config';
 
 export async function build(workDir: string) {
   await assertAppConfigExists(workDir);
-  return buildAll(workDir);
+  return buildAllForProduction(workDir);
 }
 
 if (require.main === module) {

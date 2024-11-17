@@ -19,6 +19,7 @@ export class NoWindowError extends Error {
 const createWindowManager = () => {
   const channelToWindowId = new Map<string, number>();
   const windowIdToChannel = new Map<number, string | undefined>();
+  let rendererDevServerUrl: string | undefined;
 
   const openWindow = (
     windowPath: string,
@@ -67,7 +68,15 @@ const createWindowManager = () => {
       windowIdToChannel.set(window.id, channel);
     }
 
-    window.loadFile('dist/renderer/index.html', { hash: windowPath });
+    if (rendererDevServerUrl) {
+      const url = new URL(rendererDevServerUrl);
+      url.pathname = '/dist/renderer/index.html';
+      url.hash = windowPath;
+
+      window.loadURL(url.toString());
+    } else {
+      window.loadFile('dist/renderer/index.html', { hash: windowPath });
+    }
 
     if (process.env.DEBUG_RENDERER === 'true') {
       window.show();
@@ -108,7 +117,11 @@ const createWindowManager = () => {
     window.close();
   };
 
-  return { openWindow, getWindow, closeWindow };
+  const withDevServerUrl = (url: string) => {
+    rendererDevServerUrl = url;
+  };
+
+  return { openWindow, getWindow, closeWindow, withDevServerUrl };
 };
 
 export const windowManager = createWindowManager();

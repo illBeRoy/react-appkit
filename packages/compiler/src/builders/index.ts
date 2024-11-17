@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-import { buildMain } from './main';
-import { buildRenderer } from './renderer';
+import { mainBuilder } from './main';
+import { rendererBuilder } from './renderer';
 import { buildPreload } from './preload';
 import { buildResources } from './resources';
 
-export async function buildAll(workDir: string) {
+export async function buildAllForProduction(workDir: string) {
   await Promise.all([
-    buildMain(workDir),
-    buildRenderer(workDir),
+    mainBuilder(workDir).buildForProduction(),
+    rendererBuilder(workDir).buildForProduction(),
     buildPreload(workDir),
     buildResources(workDir),
   ]);

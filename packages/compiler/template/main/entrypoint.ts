@@ -7,6 +7,7 @@ import { AppConfigSchema } from '@react-appkit/runtime/shared/config';
 async function main() {
   const opts: AppRuntimeOptions = {};
 
+  // collect user actions
   const srcActionsAllModules = import.meta.glob('./src/actions/*.ts');
 
   opts.userActions = [];
@@ -23,6 +24,7 @@ async function main() {
     });
   });
 
+  // collect tray component
   const maybeTrayModule = import.meta.glob('./src/tray.tsx');
   if (maybeTrayModule?.['./src/tray.tsx']) {
     const trayModule = await maybeTrayModule['./src/tray.tsx']();
@@ -40,6 +42,7 @@ async function main() {
     opts.trayComponent = trayModule.default as React.ComponentType;
   }
 
+  // collect application menu component
   const maybeMenuModule = import.meta.glob('./src/menu.tsx');
   if (maybeMenuModule?.['./src/menu.tsx']) {
     const menuModule = await maybeMenuModule['./src/menu.tsx']();
@@ -57,6 +60,7 @@ async function main() {
     opts.applicationMenuComponent = menuModule.default as React.ComponentType;
   }
 
+  // collect hotkeys builder
   const maybeHotkeysModule = import.meta.glob('./src/hotkeys.ts');
   if (maybeHotkeysModule?.['./src/hotkeys.ts']) {
     const hotkeysModule = await maybeHotkeysModule['./src/hotkeys.ts']();
@@ -102,6 +106,13 @@ async function main() {
   );
 
   opts.singleInstance = appConfig.singleInstance ?? false;
+
+  // if renderer dev server url was supplied by vite, utilize it
+  // @ts-expect-error this is defined by vite during build time
+  if (typeof __REACT_APPKIT_RENDERER_DEV_SERVER_URL !== 'undefined') {
+    // @ts-expect-error same as above
+    opts.rendererDevServerUrl = __REACT_APPKIT_RENDERER_DEV_SERVER_URL;
+  }
 
   await createApp(opts).start();
 }

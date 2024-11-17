@@ -21,6 +21,7 @@ export interface AppRuntimeOptions {
   startupFunction?: () => void | Promise<void>;
   singleInstance?: boolean;
   openWindowOnStartup?: boolean;
+  rendererDevServerUrl?: string;
 }
 
 export function createApp(opts: AppRuntimeOptions) {
@@ -46,6 +47,10 @@ export function createApp(opts: AppRuntimeOptions) {
     }
 
     app.whenReady().then(async () => {
+      if (opts.rendererDevServerUrl) {
+        windowManager.withDevServerUrl(opts.rendererDevServerUrl);
+      }
+
       const actionsRegistry = createActionsRegistry();
 
       await exposeBuiltinApisAsActionsInto(actionsRegistry);

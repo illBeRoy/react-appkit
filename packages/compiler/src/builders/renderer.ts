@@ -4,8 +4,8 @@ import viteReact from '@vitejs/plugin-react';
 import { removeAbsolutePaths, virtualFiles } from '../utils/vite';
 import { templateFile } from '../utils/templateFile';
 
-export async function buildRenderer(workDir: string) {
-  await vite.build({
+export const rendererBuilder = (workDir: string) => {
+  const baseCfg: vite.InlineConfig = {
     root: workDir,
     base: './',
     plugins: [
@@ -39,5 +39,28 @@ export async function buildRenderer(workDir: string) {
     resolve: {
       dedupe: ['react-router-dom'],
     },
-  });
-}
+  };
+
+  async function buildForProduction() {
+    const buildCfg = vite.mergeConfig(baseCfg, { mode: 'production' });
+    await vite.build(buildCfg);
+  }
+
+  async function createDevServer(port: number) {
+    const hmrCfg: vite.InlineConfig = {
+      server: {
+        port,
+        hmr: {
+          protocol: 'ws',
+        },
+      },
+    };
+
+    const devCfg = vite.mergeConfig(baseCfg, hmrCfg);
+
+    await vite.build(devCfg);
+    return vite.createServer(devCfg);
+  }
+
+  return { buildForProduction, createDevServer };
+};
