@@ -5,6 +5,7 @@ import { promisify } from 'node:util';
 import path from 'node:path';
 import { rendererBuilder } from './builders/renderer';
 import { mainBuilder } from './builders/main';
+import { createDevServer } from '../../dev-server/src/server';
 
 const spawn = promisify(_spawn);
 
@@ -12,14 +13,20 @@ export async function dev(workDir: string) {
   const rendererPort = 3000;
   const mainPort = 3001;
 
-  const rendererDevServer =
-    await rendererBuilder(workDir).createDevServer(rendererPort);
-
-  await rendererDevServer.listen();
-
-  await mainBuilder(workDir).createDevServer(mainPort, {
-    rendererDevServerUrl: `http://localhost:${rendererPort}`,
+  const rendererWatcher = await rendererBuilder(workDir).buildForDev({
+    devServerPort: rendererPort,
   });
+
+  const devServer = createDevServer({ port: rendererPort });
+  await devServer.awaitReady();
+
+  rendererWatcher.on('event', (event) => {
+    if (event.code === 'BUNDLE_END') {
+      devServer.send.reload();
+    }
+  });
+
+  await mainBuilder(workDir).buildForProduction();
 
   const electronExecutable = path.join(
     path.dirname(require.resolve('electron')),
@@ -31,7 +38,7 @@ export async function dev(workDir: string) {
     stdio: 'inherit',
   });
 
-  await rendererDevServer.close();
+  await devServer.close();
 }
 
 if (require.main === module) {

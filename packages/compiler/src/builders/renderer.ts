@@ -2,6 +2,7 @@ import path from 'node:path';
 import * as vite from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import { removeAbsolutePaths, virtualFiles } from '../utils/vite';
+import { devServerVitePlugin } from '../../../dev-server/src/vite';
 import { templateFile } from '../utils/templateFile';
 
 export const rendererBuilder = (workDir: string) => {
@@ -46,21 +47,22 @@ export const rendererBuilder = (workDir: string) => {
     await vite.build(buildCfg);
   }
 
-  async function createDevServer(port: number) {
-    const hmrCfg: vite.InlineConfig = {
-      server: {
-        port,
-        hmr: {
-          protocol: 'ws',
+  async function buildForDev({ devServerPort }: { devServerPort: number }) {
+    const watchCfg: vite.InlineConfig = {
+      mode: 'development',
+      plugins: [devServerVitePlugin({ port: devServerPort })],
+      build: {
+        watch: {
+          include: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+          exclude: ['node_modules/**', 'dist/**'],
         },
       },
     };
 
-    const devCfg = vite.mergeConfig(baseCfg, hmrCfg);
+    const devCfg = vite.mergeConfig(baseCfg, watchCfg);
 
-    await vite.build(devCfg);
-    return vite.createServer(devCfg);
+    return vite.build(devCfg) as Promise<vite.Rollup.RollupWatcher>;
   }
 
-  return { buildForProduction, createDevServer };
+  return { buildForProduction, buildForDev };
 };

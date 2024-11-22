@@ -2,6 +2,7 @@ import {
   render,
   type RenderOptions,
 } from '@react-appkit/runtime/renderer/render';
+import { dev } from '@react-appkit/dev-server/hook';
 
 function main() {
   const allRouteModules = import.meta.glob(
@@ -49,6 +50,8 @@ function main() {
       });
     }
   }
+
+  dev().onReload(() => window.location.reload());
 
   render(opts);
 }

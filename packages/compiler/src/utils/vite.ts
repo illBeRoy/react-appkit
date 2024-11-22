@@ -1,4 +1,3 @@
-import path from 'node:path';
 import type { Plugin } from 'vite';
 
 export const virtualFiles = (virtualFiles: Record<string, string>): Plugin => ({
@@ -36,3 +35,7 @@ export const removeAbsolutePaths = (rootDir: string): Plugin => ({
     });
   },
 });
+
+export interface DevServerVitePluginOptions {
+  port: number;
+}
