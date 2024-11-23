@@ -6,10 +6,12 @@ import { templateFile } from '../utils/templateFile';
 export const mainBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
     root: workDir,
+    logLevel: 'error',
     plugins: [
       virtualFiles({
         [path.join(workDir, 'entrypoint.ts')]:
           templateFile('main/entrypoint.ts'),
+        './actions.ts': templateFile('main/actions.ts'),
       }),
       externalizeMainProcessDeps(),
     ],
@@ -18,8 +20,7 @@ export const mainBuilder = (workDir: string) => {
       target: 'node20',
       lib: {
         formats: ['cjs'],
-        entry: './entrypoint.ts',
-        fileName: 'entrypoint',
+        entry: { entrypoint: './entrypoint.ts' },
       },
       rollupOptions: {
         external: ['electron', /node:/],
@@ -31,11 +32,11 @@ export const mainBuilder = (workDir: string) => {
   };
 
   async function buildForProduction() {
-    const buildCfg = vite.mergeConfig(baseCfg, { mode: 'production' });
-    await vite.build(buildCfg);
+    const cfg = vite.mergeConfig(baseCfg, { mode: 'production' });
+    await vite.build(cfg);
   }
 
-  async function createDevServer(
+  async function buildForDevelopment(
     port: number,
     opts: {
       rendererDevServerUrl: string;
@@ -55,8 +56,7 @@ export const mainBuilder = (workDir: string) => {
     const devCfg = vite.mergeConfig(baseCfg, hmrCfg);
 
     await vite.build(devCfg);
-    // return vite.createServer(devCfg);
   }
 
-  return { buildForProduction, createDevServer };
+  return { buildForProduction, buildForDevelopment };
 };

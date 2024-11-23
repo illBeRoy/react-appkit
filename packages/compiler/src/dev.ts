@@ -22,6 +22,7 @@ export async function dev(workDir: string) {
 
   rendererWatcher.on('event', (event) => {
     if (event.code === 'BUNDLE_END') {
+      console.log(event.input);
       devServer.send.reload();
     }
   });

@@ -1,5 +1,5 @@
 import { WebSocketServer } from 'ws';
-import type { ReloadEvent } from './event';
+import type { ReloadEvent, UpdateEvent } from './event';
 
 export interface DevServerOpts {
   port: number;
@@ -19,6 +19,10 @@ export const createDevServer = (opts: DevServerOpts) => {
     reload: () => {
       const reloadEvent: ReloadEvent = { type: 'reload' };
       ws.clients.forEach((ws) => ws.send(JSON.stringify(reloadEvent)));
+    },
+    update: (update: string) => {
+      const updateEvent: UpdateEvent = { type: 'update', update };
+      ws.clients.forEach((ws) => ws.send(JSON.stringify(updateEvent)));
     },
   };
 

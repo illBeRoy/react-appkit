@@ -8,6 +8,7 @@ import { templateFile } from '../utils/templateFile';
 export const rendererBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
     root: workDir,
+    logLevel: 'error',
     base: './',
     plugins: [
       virtualFiles({

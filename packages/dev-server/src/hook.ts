@@ -14,5 +14,14 @@ export const dev = () => {
     });
   };
 
-  return { onReload };
+  const onUpdate = (update: string, cb: () => void) => {
+    ws?.addEventListener('message', (e) => {
+      const event: DevServerEvent = JSON.parse(e.data.toString());
+      if (event.type === 'update' && event.update === update) {
+        cb();
+      }
+    });
+  };
+
+  return { onReload, onUpdate };
 };
