@@ -1,13 +1,14 @@
 import { app, BrowserWindow } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
-import { renderTray } from './tray/renderer';
+import { wrapTray } from './tray/wrapper';
 import { registerHotkey, registerHotkeys } from './hotkeys/registerHotkeys';
 import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
 import { globalStateUpdatesPublisher } from './globalState/store';
 import { windowManager } from './windows/windowManager';
-import { renderApplicationMenu } from './menu/applicationMenu/renderer';
+import { wrapApplicationMenu } from './menu/applicationMenu/wrapper';
 import { EmptyMenu } from './menu/applicationMenu/components';
+import { renderInNode } from './nodeRenderer/renderer';
 
 export interface AppRuntimeOptions {
   userActions?: Array<{
@@ -88,11 +89,15 @@ export function createApp(opts: AppRuntimeOptions) {
         ),
       );
 
-      if (opts.trayComponent) {
-        renderTray(opts.trayComponent);
-      }
+      const TrayBaseComponent = opts.trayComponent
+        ? wrapTray(opts.trayComponent)
+        : () => null;
 
-      renderApplicationMenu(opts.applicationMenuComponent ?? EmptyMenu);
+      const ApplicationMenuBaseComponent = wrapApplicationMenu(
+        opts.applicationMenuComponent ?? EmptyMenu,
+      );
+
+      renderInNode(TrayBaseComponent, ApplicationMenuBaseComponent);
 
       if (opts.openWindowOnStartup !== false) {
         windowManager.openWindow('/', { channel: '_top' });

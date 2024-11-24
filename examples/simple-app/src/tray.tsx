@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Tray, TrayMenu, TrayMenuItem } from '@react-appkit/sdk/tray';
 import { quit } from '@react-appkit/sdk/app';
-import glyphPng from './assets/glyph.png';
 import { useGlobalState } from '@react-appkit/sdk/global';
+import glyphPng from './assets/glyph.png';
 
 export default function ApplicationTray() {
   const [checked, setChecked] = useState(false);
