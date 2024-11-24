@@ -72,8 +72,6 @@ export const createMenuManager = () => {
       }
     });
 
-    console.log(rootMenu.items.map((item) => item.label));
-
     Menu.setApplicationMenu(rootMenu);
   };
 

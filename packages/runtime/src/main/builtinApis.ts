@@ -12,7 +12,7 @@ export async function exposeBuiltinApisAsActionsInto(
       const filename = `@react-appkit/runtime/main/api/${path.basename(
         moduleFilename,
         '.ts',
-      )}.ts`;
+      )}`;
       const exported = (await module()) as Record<string, unknown>; // all modules in the API folder are ESM so we can assume they're all Records
 
       Object.entries(exported).forEach(([key, value]) => {

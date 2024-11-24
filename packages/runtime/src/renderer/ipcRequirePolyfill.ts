@@ -3,8 +3,8 @@ import type { InvokeRequest } from '../main/actionsEngine/ipcBridge'; // eslint-
 
 let invokeId = 0;
 
-// @ts-expect-error window.require is defined here and therefore has no type
-window.require = (module: string) => {
+// @ts-expect-error window.importIpc is defined here and therefore has no type
+window.importIpc = (module: string) => {
   let actionNamespace: ActionNamespace | undefined;
   if (module.startsWith('@react-appkit/runtime/main/api/')) {
     actionNamespace = 'builtin';
@@ -16,10 +16,6 @@ window.require = (module: string) => {
 
   if (!actionNamespace) {
     throw new Error(`Module ${module} not found. Was it not bundled?`);
-  }
-
-  if (!module.endsWith('.ts')) {
-    module = `${module}.ts`;
   }
 
   return new Proxy(

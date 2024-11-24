@@ -8,7 +8,9 @@ async function main() {
   const opts: AppRuntimeOptions = {};
 
   // collect user actions
-  const srcActionsAllModules = import.meta.glob('./src/actions/*.ts');
+  const srcActionsAllModules = import.meta.glob(
+    './src/actions/*.{ts,tsx,js,jsx}',
+  );
 
   opts.userActions = [];
 
@@ -16,8 +18,10 @@ async function main() {
     const allExported = (await module()) as Record<string, unknown>; // all modules in the API folder are ESM so we can assume they're all Records
 
     Object.entries(allExported).forEach(([fnName, exported]) => {
+      const filenameWithoutExt = filename.slice(0, filename.lastIndexOf('.'));
+
       opts.userActions?.push({
-        fileName: filename,
+        fileName: filenameWithoutExt,
         exportedValueName: fnName,
         exportedValue: exported,
       });
