@@ -8,6 +8,7 @@ export async function buildResources(workDir: string) {
 
   await vite.build({
     root: workDir,
+    configFile: false,
     build: {
       outDir: resourcesDir,
       target: 'node20',

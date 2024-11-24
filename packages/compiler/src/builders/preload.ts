@@ -1,14 +1,16 @@
 import path from 'node:path';
 import * as vite from 'vite';
-import { externalizeMainProcessDeps, virtualFiles } from '../utils/vite';
+import { externalizeMainProcessDeps } from '../utils/vite/externalizeMainProcessDeps';
+import { virtualFiles } from '../utils/vite/virtualFiles';
 import { templateFile } from '../utils/templateFile';
 
 export async function buildPreload(workDir: string) {
   await vite.build({
     root: workDir,
+    configFile: false,
     plugins: [
-      virtualFiles({
-        [path.join(workDir, 'preload.ts')]: templateFile('renderer/preload.ts'),
+      virtualFiles(workDir, {
+        './preload.ts': templateFile('renderer/preload.ts'),
       }),
       externalizeMainProcessDeps(),
     ],

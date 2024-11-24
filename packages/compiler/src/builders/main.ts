@@ -1,15 +1,16 @@
 import path from 'node:path';
 import * as vite from 'vite';
-import { externalizeMainProcessDeps, virtualFiles } from '../utils/vite';
+import { externalizeMainProcessDeps } from '../utils/vite/externalizeMainProcessDeps';
+import { virtualFiles } from '../utils/vite/virtualFiles';
 import { templateFile } from '../utils/templateFile';
 
 export const mainBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
     root: workDir,
+    configFile: false,
     plugins: [
-      virtualFiles({
-        [path.join(workDir, 'entrypoint.ts')]:
-          templateFile('main/entrypoint.ts'),
+      virtualFiles(workDir, {
+        './entrypoint.ts': templateFile('main/entrypoint.ts'),
       }),
       externalizeMainProcessDeps(),
     ],
