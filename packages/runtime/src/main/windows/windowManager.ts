@@ -70,7 +70,7 @@ const createWindowManager = () => {
 
     if (rendererDevServerUrl) {
       const url = new URL(rendererDevServerUrl);
-      url.pathname = '/dist/renderer/index.html';
+      url.pathname = '/';
       url.hash = windowPath;
 
       window.loadURL(url.toString());

@@ -4,6 +4,7 @@ import viteReact from '@vitejs/plugin-react';
 import { virtualFiles } from '../utils/vite/virtualFiles';
 import { ipcImportPolyfill } from '../utils/vite/ipcImportPolyfill';
 import { templateFile } from '../utils/templateFile';
+import { devServer } from '../utils/vite/devServer';
 
 export const rendererBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
@@ -25,7 +26,7 @@ export const rendererBuilder = (workDir: string) => {
       rollupOptions: {
         input: {
           app: './index.html',
-          requirePolyfill: '@react-appkit/runtime/renderer/ipcRequirePolyfill',
+          importPolyfill: '@react-appkit/runtime/renderer/ipcRequirePolyfill',
         },
         output: {
           format: 'cjs',
@@ -46,6 +47,7 @@ export const rendererBuilder = (workDir: string) => {
   async function createDevServer(port: number) {
     const hmrCfg: vite.InlineConfig = {
       mode: 'development',
+      plugins: [devServer()],
       server: {
         port,
         hmr: {

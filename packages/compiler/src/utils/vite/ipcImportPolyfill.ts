@@ -9,6 +9,14 @@ const ipcModules = [
   /\/src\/actions\/.+/,
 ];
 
+/**
+ * This plugin polyfills the import of main process modules in the renderer process using ipc.
+ * In essence, whenever it runs into an "import" or a "require" from a file that runs in the main process (like runtime APIs or actions defined in the `src/actions` directory),
+ * it will be replaced with a call to `importIpc`, which returns a Proxy that, when called, invokes the imported module in the main process.
+ *
+ * @param workDir - The working directory of the project, same as the one passed to the config
+ * @returns A Vite plugin
+ */
 export const ipcImportPolyfill = (workDir: string): Plugin => ({
   name: '@react-appkit:ipc-import-polyfill',
   enforce: 'pre',

@@ -1,5 +1,10 @@
 import type { Plugin } from 'vite';
 
+/**
+ * This plugin ensures that the `electron` module and all node built-in modules are externalized when building the main process.
+ *
+ * @returns A Vite plugin
+ */
 export const externalizeMainProcessDeps = (): Plugin => ({
   name: '@react-appkit:externalize-node-modules',
   config: (config) => {

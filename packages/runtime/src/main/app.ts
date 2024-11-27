@@ -74,7 +74,9 @@ export function createApp(opts: AppRuntimeOptions) {
       }
 
       if (process.platform === 'darwin') {
-        registerHotkey('CmdOrCtrl+Q', () => app.quit());
+        registerHotkey('CmdOrCtrl+Q', () => {
+          app.quit();
+        });
       }
 
       if (opts.hotkeys) {

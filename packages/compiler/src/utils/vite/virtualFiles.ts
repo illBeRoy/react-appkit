@@ -1,6 +1,13 @@
 import path from 'node:path';
 import type { Plugin } from 'vite';
 
+/**
+ * This plugin allows you to define virtual files in the project.
+ *
+ * @param workDir - The working directory of the project, same as the one passed to the config
+ * @param virtualFiles - A mapping of virtual file paths to their content
+ * @returns A Vite plugin
+ */
 export const virtualFiles = (
   workDir: string,
   virtualFiles: Record<string, string>,
