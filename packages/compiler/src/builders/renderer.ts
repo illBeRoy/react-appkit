@@ -10,6 +10,7 @@ export const rendererBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
     root: workDir,
     configFile: false,
+    logLevel: 'silent',
     base: './',
     plugins: [
       virtualFiles(workDir, templateDir('renderer')),

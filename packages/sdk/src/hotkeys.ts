@@ -1,4 +1,4 @@
-import { Key } from '@react-appkit/runtime/main/hotkeys/key';
+import type { Key } from '@react-appkit/runtime/main/hotkeys/key';
 
 class HotkeysBuilder {
   private readonly hotkeyHandlers: Map<string, () => void | Promise<void>> =

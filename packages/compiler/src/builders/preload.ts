@@ -8,6 +8,7 @@ export async function buildPreload(workDir: string) {
   await vite.build({
     root: workDir,
     configFile: false,
+    logLevel: 'silent',
     plugins: [
       virtualFiles(workDir, {
         './preload.ts': templateFile('renderer/preload.ts'),

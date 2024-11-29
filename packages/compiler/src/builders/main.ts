@@ -40,7 +40,6 @@ export const mainBuilder = (workDir: string) => {
   }): Promise<vite.Rollup.RollupWatcher> {
     const hmrCfg: vite.InlineConfig = {
       mode: 'development',
-      logLevel: 'error',
       build: {
         watch: {
           buildDelay: 100,
