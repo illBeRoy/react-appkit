@@ -1,12 +1,6 @@
 import { Menu, Tray } from 'electron';
 import { emptyIcon, trayIcon } from './icon';
 
-export class TrayNotInitializedError extends Error {
-  name = 'TrayNotInitializedError';
-  message =
-    'You probably tried to use tray and menu components outside of a <Tray /> parent.';
-}
-
 export type TrayManager = ReturnType<typeof createTrayManager>;
 
 export const createTrayManager = () => {
@@ -18,7 +12,7 @@ export const createTrayManager = () => {
 
   const destroy = () => {
     if (!tray) {
-      throw new TrayNotInitializedError();
+      return;
     }
 
     tray.destroy();
@@ -27,7 +21,7 @@ export const createTrayManager = () => {
 
   const setIcon = async (imageDataUri: string) => {
     if (!tray) {
-      throw new TrayNotInitializedError();
+      return;
     }
 
     const icon = await trayIcon(imageDataUri);
@@ -36,7 +30,7 @@ export const createTrayManager = () => {
 
   const setTooltip = (tooltip: string) => {
     if (!tray) {
-      throw new TrayNotInitializedError();
+      return;
     }
 
     tray.setToolTip(tooltip);
@@ -44,7 +38,7 @@ export const createTrayManager = () => {
 
   const setContextMenu = (menu: Menu | null) => {
     if (!tray) {
-      throw new TrayNotInitializedError();
+      return;
     }
 
     tray.setContextMenu(menu);

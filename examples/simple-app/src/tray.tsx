@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Tray, TrayMenu, TrayMenuItem } from '@react-appkit/sdk/tray';
 import { quit } from '@react-appkit/sdk/app';
 import { useGlobalState } from '@react-appkit/sdk/global';

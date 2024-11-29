@@ -1,32 +1,19 @@
-import type { AppRuntimeOptions } from './app';
 import fs from 'node:fs/promises';
 
-export interface HmrOptions {
-  userActionsFile: string;
-}
-
-export const startHmr = (
-  opts: HmrOptions,
-  handlers: {
-    onActionsChanged: (
-      newActions: Exclude<AppRuntimeOptions['userActions'], undefined>,
-    ) => void;
-  },
+export const startHmrOnModule = (
+  file: string,
+  handler: (updatedModule: Record<string, unknown>) => void,
 ) => {
-  const actionsWatcher = startWatchingFile(opts.userActionsFile, () => {
-    delete require.cache[require.resolve(opts.userActionsFile)];
-    const newActions = require(opts.userActionsFile).userActions; // eslint-disable-line @typescript-eslint/no-require-imports
-    handlers.onActionsChanged(newActions);
+  const watcher = watchFile(file, () => {
+    delete require.cache[require.resolve(file)];
+    const newModule = require(file); // eslint-disable-line @typescript-eslint/no-require-imports
+    handler(newModule);
   });
 
-  function stop() {
-    actionsWatcher.stop();
-  }
-
-  return { stop };
+  return { stop: watcher.stop };
 };
 
-const startWatchingFile = (path: string, onChange: () => void) => {
+const watchFile = (path: string, onChange: () => void) => {
   let lastUpdated = Date.now();
 
   async function poll() {

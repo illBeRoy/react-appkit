@@ -28,12 +28,6 @@ export async function dev(workDir: string) {
     rendererDevServerUrl: `http://localhost:${rendererPort}`,
   });
 
-  mainProcessWatcher.on('event', (e) => {
-    if (e.code === 'BUNDLE_END') {
-      console.log('main process bundle built', e.input);
-    }
-  });
-
   const electronExecutable = path.join(
     path.dirname(require.resolve('electron')),
     'cli.js',

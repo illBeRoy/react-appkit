@@ -9,14 +9,16 @@ import { windowManager } from './windows/windowManager';
 import { wrapApplicationMenu } from './menu/applicationMenu/wrapper';
 import { EmptyMenu } from './menu/applicationMenu/components';
 import { renderInNode } from './nodeRenderer/renderer';
-import { startHmr, type HmrOptions } from './hmr';
+import { startHmrOnModule } from './hmr';
+
+type UserAction = {
+  fileName: string;
+  exportedValueName: string;
+  exportedValue: unknown;
+};
 
 export interface AppRuntimeOptions {
-  userActions?: Array<{
-    fileName: string;
-    exportedValueName: string;
-    exportedValue: unknown;
-  }>;
+  userActions?: UserAction[];
   trayComponent?: React.ComponentType;
   applicationMenuComponent?: React.ComponentType;
   hotkeys?: Map<string, () => void | Promise<void>>;
@@ -24,7 +26,7 @@ export interface AppRuntimeOptions {
   singleInstance?: boolean;
   openWindowOnStartup?: boolean;
   rendererDevServerUrl?: string;
-  hmr?: HmrOptions;
+  hmr?: { userActionsFile: string; trayFile: string };
 }
 
 export function createApp(opts: AppRuntimeOptions) {
@@ -85,7 +87,6 @@ export function createApp(opts: AppRuntimeOptions) {
         registerHotkeys(opts.hotkeys);
       }
 
-      console.log('RERUNNING APP?!?!');
       startIpcBridge(actionsRegistry);
 
       globalStateUpdatesPublisher.on('change', () =>
@@ -94,22 +95,21 @@ export function createApp(opts: AppRuntimeOptions) {
         ),
       );
 
-      const TrayBaseComponent = opts.trayComponent
-        ? wrapTray(opts.trayComponent)
-        : () => null;
+      const TrayBaseComponent = wrapTray(opts.trayComponent ?? null);
 
       const ApplicationMenuBaseComponent = wrapApplicationMenu(
         opts.applicationMenuComponent ?? EmptyMenu,
       );
 
-      renderInNode(TrayBaseComponent, ApplicationMenuBaseComponent);
+      renderInNode(TrayBaseComponent.Component, ApplicationMenuBaseComponent);
 
       if (opts.hmr) {
-        const hmrWatcher = startHmr(opts.hmr, {
-          onActionsChanged(newActions) {
+        const actionsWatcher = startHmrOnModule(
+          opts.hmr.userActionsFile,
+          (newActionsModule) => {
             actionsRegistry.unregisterAll('user');
 
-            newActions.forEach(
+            (newActionsModule.userActions as UserAction[]).forEach(
               ({ fileName, exportedValueName, exportedValue }) => {
                 actionsRegistry.registerAction(
                   'user',
@@ -120,10 +120,22 @@ export function createApp(opts: AppRuntimeOptions) {
               },
             );
           },
-        });
+        );
+
+        const trayWatcher = startHmrOnModule(
+          opts.hmr.trayFile,
+          (newTrayModule) => {
+            TrayBaseComponent.replace(
+              (newTrayModule.TrayComponent as
+                | React.ComponentType
+                | undefined) ?? null,
+            );
+          },
+        );
 
         app.on('will-quit', () => {
-          hmrWatcher.stop();
+          actionsWatcher.stop();
+          trayWatcher.stop();
         });
       }
 

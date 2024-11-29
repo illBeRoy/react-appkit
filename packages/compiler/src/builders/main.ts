@@ -1,19 +1,16 @@
 import path from 'node:path';
 import * as vite from 'vite';
-import builtinModules from 'builtin-modules';
 import { externalizeMainProcessDeps } from '../utils/vite/externalizeMainProcessDeps';
 import { virtualFiles } from '../utils/vite/virtualFiles';
-import { templateFile } from '../utils/templateFile';
+import { templateDir } from '../utils/template';
 
 export const mainBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
     root: workDir,
     configFile: false,
+    logLevel: 'silent',
     plugins: [
-      virtualFiles(workDir, {
-        './entrypoint.ts': templateFile('main/entrypoint.ts'),
-        './actions.ts': templateFile('main/actions.ts'),
-      }),
+      virtualFiles(workDir, templateDir('main')),
       externalizeMainProcessDeps(),
     ],
     build: {
@@ -25,7 +22,6 @@ export const mainBuilder = (workDir: string) => {
         fileName: 'entrypoint',
       },
       rollupOptions: {
-        external: ['electron', /node:/, ...builtinModules],
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].chunk.js',

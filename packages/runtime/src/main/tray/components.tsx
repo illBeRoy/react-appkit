@@ -26,12 +26,6 @@ export class TrayManagerContextError extends Error {
     'Cannot mount Tray components outside of the "./src/tray.tsx" file.';
 }
 
-export class TrayMenuContextError extends Error {
-  name = 'TrayMenuContextError';
-  message =
-    'All <TrayMenuItem /> components can only be used inside of a <TrayMenu /> component.';
-}
-
 const useTrayManager = () => {
   const context = useContext(TrayContext);
 

@@ -1,3 +1,4 @@
+import { builtinModules } from 'node:module';
 import type { Plugin } from 'vite';
 
 /**
@@ -13,5 +14,6 @@ export const externalizeMainProcessDeps = (): Plugin => ({
     config.build.rollupOptions.external ??= [];
     (config.build.rollupOptions.external as string[]).push('electron');
     (config.build.rollupOptions.external as RegExp[]).push(/^node:.+/);
+    (config.build.rollupOptions.external as string[]).push(...builtinModules);
   },
 });

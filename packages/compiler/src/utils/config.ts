@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { templateFile } from './templateFile';
+import { templateFile } from './template';
 
 export async function assertAppConfigExists(workDir: string) {
   const appConfigFile = path.join(workDir, 'app.config.ts');

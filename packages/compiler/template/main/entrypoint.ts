@@ -13,40 +13,14 @@ async function main() {
   );
 
   // collect tray component
-  const maybeTrayModule = import.meta.glob('./src/tray.tsx');
-  if (maybeTrayModule?.['./src/tray.tsx']) {
-    const trayModule = await maybeTrayModule['./src/tray.tsx']();
-
-    if (
-      !trayModule ||
-      typeof trayModule !== 'object' ||
-      !('default' in trayModule)
-    ) {
-      throw new Error(
-        'The ./src/tray.tsx file must export a default component that contains the <Tray /> component.',
-      );
-    }
-
-    opts.trayComponent = trayModule.default as React.ComponentType;
-  }
+  opts.trayComponent = await import('./tray').then(
+    (exported) => exported.TrayComponent,
+  );
 
   // collect application menu component
-  const maybeMenuModule = import.meta.glob('./src/menu.tsx');
-  if (maybeMenuModule?.['./src/menu.tsx']) {
-    const menuModule = await maybeMenuModule['./src/menu.tsx']();
-
-    if (
-      !menuModule ||
-      typeof menuModule !== 'object' ||
-      !('default' in menuModule)
-    ) {
-      throw new Error(
-        'The ./src/menu.tsx file must export a default component that contains the <ApplicationMenu /> component.',
-      );
-    }
-
-    opts.applicationMenuComponent = menuModule.default as React.ComponentType;
-  }
+  opts.applicationMenuComponent = await import('./applicationMenu').then(
+    (exported) => exported.ApplicationMenuComponent,
+  );
 
   // collect hotkeys builder
   const maybeHotkeysModule = import.meta.glob('./src/hotkeys.ts');
@@ -108,6 +82,8 @@ async function main() {
     opts.hmr = {
       // @ts-expect-error same as above
       userActionsFile: path.join(__HMR_FILES_BASE_PATH, 'actions.chunk.js'),
+      // @ts-expect-error same as above
+      trayFile: path.join(__HMR_FILES_BASE_PATH, 'tray.chunk.js'),
     };
   }
 

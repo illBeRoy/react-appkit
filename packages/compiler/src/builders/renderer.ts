@@ -3,7 +3,7 @@ import * as vite from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import { virtualFiles } from '../utils/vite/virtualFiles';
 import { ipcImportPolyfill } from '../utils/vite/ipcImportPolyfill';
-import { templateFile } from '../utils/templateFile';
+import { templateDir } from '../utils/template';
 import { devServer } from '../utils/vite/devServer';
 
 export const rendererBuilder = (workDir: string) => {
@@ -12,10 +12,7 @@ export const rendererBuilder = (workDir: string) => {
     configFile: false,
     base: './',
     plugins: [
-      virtualFiles(workDir, {
-        './entrypoint.tsx': templateFile('renderer/entrypoint.tsx'),
-        './index.html': templateFile('renderer/index.html'),
-      }),
+      virtualFiles(workDir, templateDir('renderer')),
       ipcImportPolyfill(workDir),
       viteReact(),
     ],

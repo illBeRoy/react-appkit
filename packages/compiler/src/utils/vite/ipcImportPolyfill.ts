@@ -118,7 +118,12 @@ export const ipcImportPolyfill = (workDir: string): Plugin => ({
               );
 
               if (polyfilledCode?.program?.body) {
-                nodePath.replaceInline(polyfilledCode.program.body);
+                const declarations = nodePath.replaceInline(
+                  polyfilledCode.program.body,
+                );
+                declarations.forEach((dec) =>
+                  nodePath.scope.registerDeclaration(dec),
+                );
               } else {
                 throw new Error('Failed to create polyfilled code!');
               }
