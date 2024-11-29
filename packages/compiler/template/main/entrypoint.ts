@@ -12,37 +12,15 @@ async function main() {
     (exported) => exported.userActions,
   );
 
-  // collect tray component
   opts.trayComponent = await import('./tray').then(
     (exported) => exported.TrayComponent,
   );
 
-  // collect application menu component
   opts.applicationMenuComponent = await import('./applicationMenu').then(
     (exported) => exported.ApplicationMenuComponent,
   );
 
-  // collect hotkeys builder
-  const maybeHotkeysModule = import.meta.glob('./src/hotkeys.ts');
-  if (maybeHotkeysModule?.['./src/hotkeys.ts']) {
-    const hotkeysModule = await maybeHotkeysModule['./src/hotkeys.ts']();
-
-    if (
-      !hotkeysModule ||
-      typeof hotkeysModule !== 'object' ||
-      !('default' in hotkeysModule) ||
-      !hotkeysModule.default ||
-      typeof hotkeysModule.default !== 'object' ||
-      !('build' in hotkeysModule.default) ||
-      typeof hotkeysModule.default.build !== 'function'
-    ) {
-      throw new Error(
-        'The ./src/hotkeys.ts file must export a hotkeys builder. Example:\n\nimport { hotkeys } from "@react-appkit/sdk/hotkeys";\n\nexport default hotkeys()\n  .addHotkey(["CmdOrCtrl", "H"], () => console.log("Hello, world"));\n',
-      );
-    }
-
-    opts.hotkeys = hotkeysModule.default.build();
-  }
+  opts.hotkeys = await import('./hotkeys').then((exported) => exported.hotkeys);
 
   const maybeStartupModule = import.meta.glob('./src/startup.ts');
   if (maybeStartupModule?.['./src/startup.ts']) {
@@ -84,6 +62,13 @@ async function main() {
       userActionsFile: path.join(__HMR_FILES_BASE_PATH, 'actions.chunk.js'),
       // @ts-expect-error same as above
       trayFile: path.join(__HMR_FILES_BASE_PATH, 'tray.chunk.js'),
+      applicationMenuFile: path.join(
+        // @ts-expect-error same as above
+        __HMR_FILES_BASE_PATH,
+        'applicationMenu.chunk.js',
+      ),
+      // @ts-expect-error same as above
+      hotkeysFile: path.join(__HMR_FILES_BASE_PATH, 'hotkeys.chunk.js'),
     };
   }
 

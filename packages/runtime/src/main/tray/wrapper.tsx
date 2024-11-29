@@ -5,8 +5,7 @@ import { MainProcessGlobalStateProvider } from '../globalState/MainProcessGlobal
 import { createForceRenderer } from '../nodeRenderer/forceRender';
 
 export const wrapTray = (RootComponent: React.ComponentType | null) => {
-  // const trayManager = createTrayManager();
-  const forceRenderer = createForceRenderer();
+  const [useForceRenderer, forceRender] = createForceRenderer();
 
   let jsx = RootComponent ? (
     <TrayProvider key={Date.now()} manager={createTrayManager()}>
@@ -20,11 +19,11 @@ export const wrapTray = (RootComponent: React.ComponentType | null) => {
         <NewComponent />
       </TrayProvider>
     ) : null;
-    forceRenderer.forceRender();
+    forceRender();
   }
 
   function TrayBaseComponent() {
-    forceRenderer.hook();
+    useForceRenderer();
 
     return (
       <MainProcessGlobalStateProvider>

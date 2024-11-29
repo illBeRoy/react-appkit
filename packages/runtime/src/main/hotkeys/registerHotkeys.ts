@@ -1,16 +1,27 @@
 import { globalShortcut } from 'electron';
 
-export const registerHotkey = (
-  shortcut: string,
-  callback: () => void | Promise<void>,
-) => {
-  globalShortcut.register(shortcut, callback);
-};
+const builtinHotkeys: Map<string, () => void | Promise<void>> =
+  process.platform === 'darwin'
+    ? new Map([
+        [
+          'CmdOrCtrl+Q',
+          () => {
+            app.quit();
+          },
+        ],
+      ])
+    : new Map();
 
-export const registerHotkeys = (
+export const setHotkeys = (
   hotkeys: Map<string, () => void | Promise<void>>,
 ) => {
+  globalShortcut.unregisterAll();
+
+  builtinHotkeys.forEach((callback, shortcut) => {
+    globalShortcut.register(shortcut, callback);
+  });
+
   hotkeys.forEach((callback, shortcut) => {
-    registerHotkey(shortcut, callback);
+    globalShortcut.register(shortcut, callback);
   });
 };

@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from 'electron';
 import { createActionsRegistry } from './actionsEngine/registry';
 import { wrapTray } from './tray/wrapper';
-import { registerHotkey, registerHotkeys } from './hotkeys/registerHotkeys';
+import { setHotkeys } from './hotkeys/registerHotkeys';
 import { exposeBuiltinApisAsActionsInto } from './builtinApis';
 import { startIpcBridge } from './actionsEngine/ipcBridge';
 import { globalStateUpdatesPublisher } from './globalState/store';
@@ -26,7 +26,12 @@ export interface AppRuntimeOptions {
   singleInstance?: boolean;
   openWindowOnStartup?: boolean;
   rendererDevServerUrl?: string;
-  hmr?: { userActionsFile: string; trayFile: string };
+  hmr?: {
+    userActionsFile: string;
+    trayFile: string;
+    applicationMenuFile: string;
+    hotkeysFile: string;
+  };
 }
 
 export function createApp(opts: AppRuntimeOptions) {
@@ -77,15 +82,7 @@ export function createApp(opts: AppRuntimeOptions) {
         await opts.startupFunction();
       }
 
-      if (process.platform === 'darwin') {
-        registerHotkey('CmdOrCtrl+Q', () => {
-          app.quit();
-        });
-      }
-
-      if (opts.hotkeys) {
-        registerHotkeys(opts.hotkeys);
-      }
+      setHotkeys(opts.hotkeys ?? new Map());
 
       startIpcBridge(actionsRegistry);
 
@@ -101,7 +98,10 @@ export function createApp(opts: AppRuntimeOptions) {
         opts.applicationMenuComponent ?? EmptyMenu,
       );
 
-      renderInNode(TrayBaseComponent.Component, ApplicationMenuBaseComponent);
+      renderInNode(
+        TrayBaseComponent.Component,
+        ApplicationMenuBaseComponent.Component,
+      );
 
       if (opts.hmr) {
         const actionsWatcher = startHmrOnModule(
@@ -133,9 +133,34 @@ export function createApp(opts: AppRuntimeOptions) {
           },
         );
 
+        const applicationMenuWatcher = startHmrOnModule(
+          opts.hmr.applicationMenuFile,
+          (newApplicationMenuModule) => {
+            ApplicationMenuBaseComponent.replace(
+              (newApplicationMenuModule.ApplicationMenuComponent as
+                | React.ComponentType
+                | undefined) ?? EmptyMenu,
+            );
+          },
+        );
+
+        const hotkeysWatcher = startHmrOnModule(
+          opts.hmr.hotkeysFile,
+          (newHotkeysModule) => {
+            setHotkeys(
+              (newHotkeysModule.hotkeys as Map<
+                string,
+                () => void | Promise<void>
+              >) ?? new Map(),
+            );
+          },
+        );
+
         app.on('will-quit', () => {
           actionsWatcher.stop();
           trayWatcher.stop();
+          applicationMenuWatcher.stop();
+          hotkeysWatcher.stop();
         });
       }
 

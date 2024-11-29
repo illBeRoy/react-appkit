@@ -22,8 +22,5 @@ export const createForceRenderer = () => {
     forceRenderHandler();
   }
 
-  return {
-    hook,
-    forceRender,
-  };
+  return [hook, forceRender];
 };
