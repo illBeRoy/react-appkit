@@ -3,22 +3,35 @@
 import { spawn as _spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import path from 'node:path';
+import getPort from 'get-port';
+import { clean } from './builders';
 import { rendererBuilder } from './builders/renderer';
 import { mainBuilder } from './builders/main';
+import { buildResources } from './builders/resources';
+import { buildPreload } from './builders/preload';
 
 const spawn = promisify(_spawn);
 
 export async function dev(workDir: string) {
-  const rendererPort = 3000;
-  const mainPort = 3001;
+  await clean(workDir);
+
+  await Promise.all([buildPreload(workDir), buildResources(workDir)]);
+
+  const rendererPort = await getPort({ port: 3000 });
 
   const rendererDevServer =
     await rendererBuilder(workDir).createDevServer(rendererPort);
 
   await rendererDevServer.listen();
 
-  await mainBuilder(workDir).createDevServer(mainPort, {
+  const mainProcessWatcher = await mainBuilder(workDir).buildAndWatch({
     rendererDevServerUrl: `http://localhost:${rendererPort}`,
+  });
+
+  mainProcessWatcher.on('event', (e) => {
+    if (e.code === 'BUNDLE_END') {
+      console.log('main process bundle built', e.input);
+    }
   });
 
   const electronExecutable = path.join(
@@ -31,7 +44,7 @@ export async function dev(workDir: string) {
     stdio: 'inherit',
   });
 
-  await rendererDevServer.close();
+  await Promise.all([mainProcessWatcher.close(), rendererDevServer.close()]);
 }
 
 if (require.main === module) {

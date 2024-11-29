@@ -9,6 +9,7 @@ import { windowManager } from './windows/windowManager';
 import { wrapApplicationMenu } from './menu/applicationMenu/wrapper';
 import { EmptyMenu } from './menu/applicationMenu/components';
 import { renderInNode } from './nodeRenderer/renderer';
+import { startHmr, type HmrOptions } from './hmr';
 
 export interface AppRuntimeOptions {
   userActions?: Array<{
@@ -23,6 +24,7 @@ export interface AppRuntimeOptions {
   singleInstance?: boolean;
   openWindowOnStartup?: boolean;
   rendererDevServerUrl?: string;
+  hmr?: HmrOptions;
 }
 
 export function createApp(opts: AppRuntimeOptions) {
@@ -83,6 +85,7 @@ export function createApp(opts: AppRuntimeOptions) {
         registerHotkeys(opts.hotkeys);
       }
 
+      console.log('RERUNNING APP?!?!');
       startIpcBridge(actionsRegistry);
 
       globalStateUpdatesPublisher.on('change', () =>
@@ -100,6 +103,29 @@ export function createApp(opts: AppRuntimeOptions) {
       );
 
       renderInNode(TrayBaseComponent, ApplicationMenuBaseComponent);
+
+      if (opts.hmr) {
+        const hmrWatcher = startHmr(opts.hmr, {
+          onActionsChanged(newActions) {
+            actionsRegistry.unregisterAll('user');
+
+            newActions.forEach(
+              ({ fileName, exportedValueName, exportedValue }) => {
+                actionsRegistry.registerAction(
+                  'user',
+                  fileName,
+                  exportedValueName,
+                  exportedValue,
+                );
+              },
+            );
+          },
+        });
+
+        app.on('will-quit', () => {
+          hmrWatcher.stop();
+        });
+      }
 
       if (opts.openWindowOnStartup !== false) {
         windowManager.openWindow('/', { channel: '_top' });

@@ -48,6 +48,7 @@ export const rendererBuilder = (workDir: string) => {
     const hmrCfg: vite.InlineConfig = {
       mode: 'development',
       plugins: [devServer()],
+      logLevel: 'error',
       server: {
         port,
         hmr: {

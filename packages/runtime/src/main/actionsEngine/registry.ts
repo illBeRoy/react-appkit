@@ -45,6 +45,14 @@ export const createActionsRegistry = () => {
     );
   }
 
+  function unregisterAll(namespace: ActionNamespace) {
+    actions.forEach((_, key) => {
+      if (key.startsWith(`${namespace}.`)) {
+        actions.delete(key);
+      }
+    });
+  }
+
   function getAction(
     namespace: ActionNamespace,
     filename: string,
@@ -53,5 +61,5 @@ export const createActionsRegistry = () => {
     return actions.get(`${namespace}.${filename}.${fnName}`);
   }
 
-  return { registerAction, getAction };
+  return { registerAction, getAction, unregisterAll };
 };

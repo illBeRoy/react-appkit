@@ -2,31 +2,15 @@ import {
   createApp,
   type AppRuntimeOptions,
 } from '@react-appkit/runtime/main/app';
+import path from 'node:path';
 import { AppConfigSchema } from '@react-appkit/runtime/shared/config';
 
 async function main() {
   const opts: AppRuntimeOptions = {};
 
-  // collect user actions
-  const srcActionsAllModules = import.meta.glob(
-    './src/actions/*.{ts,tsx,js,jsx}',
+  opts.userActions = await import('./actions').then(
+    (exported) => exported.userActions,
   );
-
-  opts.userActions = [];
-
-  Object.entries(srcActionsAllModules).forEach(async ([filename, module]) => {
-    const allExported = (await module()) as Record<string, unknown>; // all modules in the API folder are ESM so we can assume they're all Records
-
-    Object.entries(allExported).forEach(([fnName, exported]) => {
-      const filenameWithoutExt = filename.slice(0, filename.lastIndexOf('.'));
-
-      opts.userActions?.push({
-        fileName: filenameWithoutExt,
-        exportedValueName: fnName,
-        exportedValue: exported,
-      });
-    });
-  });
 
   // collect tray component
   const maybeTrayModule = import.meta.glob('./src/tray.tsx');
@@ -113,9 +97,18 @@ async function main() {
 
   // if renderer dev server url was supplied by vite, utilize it
   // @ts-expect-error this is defined by vite during build time
-  if (typeof __REACT_APPKIT_RENDERER_DEV_SERVER_URL !== 'undefined') {
+  if (typeof __REACT_APPKIT_RENDERER_DEV_SERVER_URL === 'string') {
     // @ts-expect-error same as above
     opts.rendererDevServerUrl = __REACT_APPKIT_RENDERER_DEV_SERVER_URL;
+  }
+
+  // if hmr files base path was supplied by vite, tell the runtime to watch for changes for dynamic files
+  // @ts-expect-error this is defined by vite during build time
+  if (typeof __HMR_FILES_BASE_PATH === 'string') {
+    opts.hmr = {
+      // @ts-expect-error same as above
+      userActionsFile: path.join(__HMR_FILES_BASE_PATH, 'actions.chunk.js'),
+    };
   }
 
   await createApp(opts).start();

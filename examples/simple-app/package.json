@@ -4,6 +4,9 @@
   "private": true,
   "main": "dist/main/entrypoint.js",
   "scripts": {
+    "start": "react-appkit-start",
+    "build": "react-appkit-build",
+    "pack": "react-appkit-pack",
     "dev": "react-appkit-dev"
   },
   "devDependencies": {

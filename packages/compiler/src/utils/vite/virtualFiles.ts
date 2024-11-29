@@ -32,6 +32,10 @@ export const virtualFiles = (
       if (absId in absVirtualFiles) {
         return absId;
       }
+
+      if (`${absId}.ts` in absVirtualFiles) {
+        return `${absId}.ts`;
+      }
     },
     load(id: string) {
       if (id in absVirtualFiles) {

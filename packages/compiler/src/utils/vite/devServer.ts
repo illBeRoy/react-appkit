@@ -1,5 +1,6 @@
 import type { Plugin } from 'vite';
 import babel from '@babel/core';
+// @ts-expect-error babel-plugin-transform-typescript is not typed, but it's fine
 import babelTs from '@babel/plugin-transform-typescript';
 import { templateFile } from '../templateFile';
 

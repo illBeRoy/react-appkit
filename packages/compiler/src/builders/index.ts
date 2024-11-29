@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { mainBuilder } from './main';
 import { rendererBuilder } from './renderer';
 import { buildPreload } from './preload';
@@ -11,4 +13,8 @@ export async function buildAllForProduction(workDir: string) {
     buildPreload(workDir),
     buildResources(workDir),
   ]);
+}
+
+export async function clean(workDir: string) {
+  await fs.rm(path.join(workDir, 'dist'), { recursive: true, force: true });
 }
