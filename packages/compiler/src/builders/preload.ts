@@ -2,14 +2,15 @@ import path from 'node:path';
 import * as vite from 'vite';
 import { externalizeMainProcessDeps } from '../utils/vite/externalizeMainProcessDeps';
 import { virtualFiles } from '../utils/vite/virtualFiles';
+import { silent } from '../utils/vite/useLogger';
 import { templateFile } from '../utils/template';
 
 export async function buildPreload(workDir: string) {
   await vite.build({
     root: workDir,
     configFile: false,
-    logLevel: 'silent',
     plugins: [
+      silent(),
       virtualFiles(workDir, {
         './preload.ts': templateFile('renderer/preload.ts'),
       }),

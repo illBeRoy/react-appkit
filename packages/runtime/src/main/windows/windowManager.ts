@@ -73,7 +73,7 @@ const createWindowManager = () => {
       url.pathname = '/';
       url.hash = windowPath;
 
-      window.loadURL(url.toString()).catch((err) => {
+      window.loadURL(url.toString()).catch(() => {
         console.error(
           '\nIt seems like the dev server is not running. Either run the "dev" command again, or build a production version using the "build" command before running again',
         );

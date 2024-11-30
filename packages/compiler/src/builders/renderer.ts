@@ -3,16 +3,17 @@ import * as vite from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import { virtualFiles } from '../utils/vite/virtualFiles';
 import { ipcImportPolyfill } from '../utils/vite/ipcImportPolyfill';
-import { templateDir } from '../utils/template';
 import { devServer } from '../utils/vite/devServer';
+import { silent } from '../utils/vite/useLogger';
+import { templateDir } from '../utils/template';
 
 export const rendererBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
     root: workDir,
     configFile: false,
-    logLevel: 'silent',
     base: './',
     plugins: [
+      silent(),
       virtualFiles(workDir, templateDir('renderer')),
       ipcImportPolyfill(workDir),
       viteReact(),

@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import * as vite from 'vite';
+import { silent } from '../utils/vite/useLogger';
 
 export async function buildResources(workDir: string) {
   const resourcesDir = path.join(workDir, 'dist', 'resources');
@@ -9,7 +10,7 @@ export async function buildResources(workDir: string) {
   await vite.build({
     root: workDir,
     configFile: false,
-    logLevel: 'silent',
+    plugins: [silent()],
     build: {
       outDir: resourcesDir,
       target: 'node20',

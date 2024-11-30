@@ -2,16 +2,17 @@ import path from 'node:path';
 import * as vite from 'vite';
 import { externalizeMainProcessDeps } from '../utils/vite/externalizeMainProcessDeps';
 import { virtualFiles } from '../utils/vite/virtualFiles';
+import { silent } from '../utils/vite/useLogger';
 import { templateDir } from '../utils/template';
 
 export const mainBuilder = (workDir: string) => {
   const baseCfg: vite.InlineConfig = {
     root: workDir,
     configFile: false,
-    logLevel: 'silent',
     plugins: [
       virtualFiles(workDir, templateDir('main')),
       externalizeMainProcessDeps(),
+      silent(),
     ],
     build: {
       outDir: path.join('dist', 'main'),

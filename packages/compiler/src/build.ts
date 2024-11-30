@@ -1,10 +1,28 @@
 #!/usr/bin/env node
+import ora from 'ora';
+import chalk from 'chalk';
 import { buildAllForProduction } from './builders';
 import { assertAppConfigExists } from './utils/config';
 
 export async function build(workDir: string) {
+  const status = ora().start();
+
+  status.text = 'Validating app config...';
   await assertAppConfigExists(workDir);
-  return buildAllForProduction(workDir);
+
+  status.text = 'Building app...';
+  await buildAllForProduction(workDir);
+
+  status.succeed(
+    chalk.green('App built successfully! 🎉\n\n') +
+      'You can now run the following commands:\n' +
+      `  • ${chalk.inverse.italic('  start  ')} to ${chalk.bold.blueBright(
+        'launch the app',
+      )}\n` +
+      `  • ${chalk.inverse.italic('  pack   ')} to ${chalk.bold.blueBright(
+        'package the app for distribution',
+      )}\n`,
+  );
 }
 
 if (require.main === module) {
