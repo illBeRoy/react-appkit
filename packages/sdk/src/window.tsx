@@ -1,3 +1,9 @@
+/**
+ * @module window
+ * APIs to create, use and modify application windows.
+ * Windows are the main containers of the app content, and are used to display visual UI to the user.
+ */
+
 import { useContext, createContext, useEffect } from 'react';
 import {
   type WindowHandler,
@@ -39,6 +45,25 @@ export interface WindowProps {
   children: React.ReactNode;
 }
 
+/**
+ * The main component that hosts all of the other window components.
+ * @example
+ * ```tsx
+ * <Window>
+ *   <Window.Title>My window</Window.Title>
+ * </Window>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * <>
+ *   <Window>
+ *     <Window.Title>My window</Window.Title>
+ *   </Window>
+ *   <div>Window Content! Do not put me inside the Window component, but as a sibling.</div>
+ * </>
+ * ```
+ */
 export const Window = ({ children }: WindowProps) => {
   // Since Window components can be rendered either in a layout or in a route,
   // we need to ensure that the layout windows are reapplied when the route changes.
@@ -65,6 +90,18 @@ export interface WindowTitleProps {
   maximizable?: boolean;
 }
 
+/**
+ * A component that can be used to set the title of the window, as well as the controls that can be found in the window's title bar.
+ * @example
+ * ```tsx
+ * <Window.Title>My window</Window.Title>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * <Window.Title closable minimizable={false}>My window</Window.Title>
+ * ```
+ */
 const WindowTitle = ({
   children,
   closable,
@@ -117,6 +154,19 @@ export interface WindowSizeProps {
   height: number;
 }
 
+/**
+ * A component that can be used to set the size of the window.
+ * Note that width and height can be defined either in absolute pixels (number), or in percentage relative to the screen size (string).
+ * @example
+ * ```tsx
+ * <Window.Size width={500} height={300} />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * <Window.Size width="25%" height="25%" />
+ * ```
+ */
 const WindowSize = ({ width, height }: WindowSizeProps) => {
   useWindowContext();
 
@@ -133,6 +183,20 @@ export interface WindowPositionProps {
   origin?: Parameters<typeof setPosition>[2];
 }
 
+/**
+ * A component that can be used to set the position of the window.
+ * Note that x and y can be defined either in absolute pixels (number), or in percentage relative to the screen size (string).
+ * In addition, the "origin" prop can be used to define the anchor point for the window's position.
+ * @example
+ * ```tsx
+ * <Window.Position x={100} y={100} />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * <Window.Position x="25%" y="25%" origin="top-left" />
+ * ```
+ */
 const WindowPosition = ({ x, y, origin }: WindowPositionProps) => {
   useWindowContext();
 
@@ -147,6 +211,13 @@ export interface WindowResizableProps {
   resizable: boolean;
 }
 
+/**
+ * A component that can be used to set whether or not the window can be resized by the user.
+ * @example
+ * ```tsx
+ * <Window.Resizable resizable={false} />
+ * ```
+ */
 const WindowResizable = ({ resizable }: WindowResizableProps) => {
   useWindowContext();
 
@@ -165,6 +236,13 @@ export interface WindowMovableProps {
   movable: boolean;
 }
 
+/**
+ * A component that can be used to set whether or not the window can be moved by the user.
+ * @example
+ * ```tsx
+ * <Window.Movable movable={false} />
+ * ```
+ */
 const WindowMovable = ({ movable }: WindowMovableProps) => {
   useWindowContext();
 
@@ -179,6 +257,13 @@ const WindowMovable = ({ movable }: WindowMovableProps) => {
   return null;
 };
 
+/**
+ * A component that, if mounted, will make the window always stay on top of other windows.
+ * @example
+ * ```tsx
+ * <Window.AlwaysOnTop />
+ * ```
+ */
 const WindowAlwaysOnTop = () => {
   useWindowContext();
 
@@ -193,6 +278,13 @@ const WindowAlwaysOnTop = () => {
   return null;
 };
 
+/**
+ * A component that, if mounted, will make the window always stay in fullscreen mode.
+ * @example
+ * ```tsx
+ * <Window.Fullscreen />
+ * ```
+ */
 const WindowFullscreen = () => {
   useWindowContext();
 
@@ -211,6 +303,13 @@ export interface WindowTaskbarProps {
   show: boolean;
 }
 
+/**
+ * A component that can be used to set whether or not the window should be shown in the taskbar.
+ * @example
+ * ```tsx
+ * <Window.Taskbar show={false} />
+ * ```
+ */
 const WindowTaskbar = ({ show }: WindowTaskbarProps) => {
   useWindowContext();
 
@@ -229,6 +328,15 @@ export interface WindowMenuProps {
   visible: boolean;
 }
 
+/**
+ * A component that can be used to set whether or not the window should have a menu bar.
+ * The menu bar, if visible, matches the application menu defined in the "src/menu.tsx" module.
+ * Irrelevant on macOS.
+ * @example
+ * ```tsx
+ * <Window.Menu visible={false} />
+ * ```
+ */
 export const WindowMenu = ({ visible }: WindowMenuProps) => {
   useWindowContext();
 
@@ -243,14 +351,29 @@ export const WindowMenu = ({ visible }: WindowMenuProps) => {
   return null;
 };
 
+/**
+ * A function that can be used to show a window.
+ */
 export const showWindow = (window?: WindowHandler) => show(window);
+
+/**
+ * A function that can be used to hide a window.
+ */
 export const hideWindow = (window?: WindowHandler) => hide(window);
 
+/**
+ * A function that can be used to create new windows.
+ * Note: this function cannot be called from Window components. For those, please use the "useNavigation" hook or the "<Link />" component from the "routing" module.
+ */
 export const createNewWindow = allowImportingOnlyOnMainProcess(
   createNewWindowInternal,
   'In order to open new windows from other windows, please import "useRouter" or the "<Link />" component from "@react-appkit/runtime/renderer/routing"',
 );
 
+/**
+ * A function that can be used to close existing windows by their handler or channel.
+ * Note: this function cannot be called from Window components. For those, please use the "useNavigation" hook or the "<Link />" component from the "routing" module.
+ */
 export const closeWindow = allowImportingOnlyOnMainProcess(
   closeWindowInternal,
   'In order to close windows from other windows, please import "useRouter" from "@react-appkit/runtime/renderer/routing"',

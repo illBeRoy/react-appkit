@@ -1,3 +1,8 @@
+/**
+ * @module dialog
+ * APIs to show OS dialogs, like file dialogs (both open and save) and native message boxes.
+ */
+
 import {
   type FileDialogOptions,
   type OpenDialogOptions,
