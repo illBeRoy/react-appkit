@@ -6,8 +6,8 @@
   "scripts": {
     "start": "react-appkit-start",
     "build": "react-appkit-build",
-    "pack": "react-appkit-pack",
-    "dev": "react-appkit-dev"
+    "dev": "react-appkit-dev",
+    "pack": "react-appkit-pack"
   },
   "devDependencies": {
     "@react-appkit/eslint-config": "workspace:*",
