@@ -16,6 +16,7 @@ export const mainBuilder = (workDir: string) => {
     build: {
       outDir: path.join('dist', 'main'),
       target: 'node20',
+      sourcemap: true,
       lib: {
         formats: ['cjs'],
         entry: './entrypoint.ts',

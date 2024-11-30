@@ -73,7 +73,12 @@ const createWindowManager = () => {
       url.pathname = '/';
       url.hash = windowPath;
 
-      window.loadURL(url.toString());
+      window.loadURL(url.toString()).catch((err) => {
+        console.error(
+          '\nIt seems like the dev server is not running. Either run the "dev" command again, or build a production version using the "build" command before running again',
+        );
+        process.exit(1);
+      });
     } else {
       window.loadFile('dist/renderer/index.html', { hash: windowPath });
     }
