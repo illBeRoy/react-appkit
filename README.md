@@ -1,15 +1,88 @@
-# @react-appkit/monorepo
+<center>
+  <img src="logo.png" alt="logo" width="280" />
+  <br />
+  <br />
+  The React meta-framework for rapidly building desktop apps.
+</center>
 
-To install dependencies:
+## General
+React-AppKit is a robust meta-framework designed to help you quickly create, iterate on, and deploy desktop applications compatible with Windows, macOS and Linux.
 
-```bash
-bun install
+Key features include:
+- 🚥 File-based routing
+- ⚡️ Effortlessly run code in Node.js using "server" actions
+- 🧰 Manage app features, such as the tray icon and menu, through an intuitive React API
+- ⏱️ Integrated Hot Module Replacement (HMR) support
+- ⚒️ A toolchain that simplifies the process of building and running your app
+
+## Getting Started
+Get started by running the create-app command:
+```sh
+npm create react-appkit-app
 ```
 
-To run:
+This will guide you through the process of setting up your new app.
 
-```bash
-bun run index.ts
+### Run your app
+You can immediately run your app by running the following command:
+```sh
+npm run dev
 ```
 
-This project was created using `bun init` in bun v1.1.27. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+The app will launch shortly after, and any changes you make is automatically reloaded via HMR.
+
+## API
+> This section is under construction. 🚧
+
+### Window Routes
+What is a window route? In React-AppKit, a window route is the main unit of UI container, similar to a "page" in a web app. You can find your window routes in the `src/windows` directory.
+
+Similar to other meta-frameworks, React-AppKit uses file-based routing. This means that each file in the `src/windows` directory is treated as its own window route, which means you can either navigate to it in an existing window, or open it in a new one.
+
+The default window can be found at `src/windows/index.tsx`:
+
+```tsx
+// todo: include example once create-appkit-app is launched
+```
+
+Window routes run in a browser-like environment, meaning that any react-dom compatible code can be used. This also means that you cannot use Node.js APIs directly, only via Node Actions (more on this later).
+
+Window routes also support styling via CSS Modules.
+
+#### The `<Window />` component
+In order to control the appearance of your window's frame, you can use the `<Window />` component. These components expose 
+
+#### Navigation
+
+#### Layout components
+
+### Node Actions
+
+### Global State
+
+### Tray Icon
+
+### Application Menu
+
+### Global Hotkeys
+
+### Startup Function
+
+### App Config
+
+### Running in Dev Mode
+
+### Building
+
+#### Creating executables
+
+## How it works
+
+### General Architecture
+
+#### Main and Renderer Processes
+
+#### How Node Actions work
+
+### The Build Process
+
