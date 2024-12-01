@@ -1,9 +1,9 @@
-<center>
+<p align="center">
   <img src="logo.png" alt="logo" width="280" />
   <br />
   <br />
   The React meta-framework for rapidly building desktop apps.
-</center>
+</p>
 
 ## General
 React-AppKit is a robust meta-framework designed to help you quickly create, iterate on, and deploy desktop applications compatible with Windows, macOS and Linux.
