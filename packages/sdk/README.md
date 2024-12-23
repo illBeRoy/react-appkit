@@ -9,3 +9,5 @@ The project comprises multiple entry points, each exporting a unique set of APIs
 
 ## Build Output
 No build step is required; this library is designed to be used directly in app code and is built and bundled alongside the app.
+
+Learn more about React Appkit: https://github.com/illberoy/react-appkit

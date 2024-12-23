@@ -13,3 +13,5 @@ The project consists of three main parts:
 
 ## Build Output
 No build step is required; this library is designed to be used directly by the app, and is built and bundled alongside it.
+
+Learn more about React Appkit: https://github.com/illberoy/react-appkit

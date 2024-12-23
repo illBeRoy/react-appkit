@@ -1,0 +1,29 @@
+{
+  "name": "@react-appkit/scripts",
+  "version": "1.0.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start-local-npm": "bun run src/dry/localNpm.ts",
+    "release": "bun run src/release.ts",
+    "release:dry": "npm_config_registry=http://localhost:4873 NPM_TOKEN=fake bun run src/release.ts"
+  },
+  "devDependencies": {
+    "@react-appkit/eslint-config": "workspace:*",
+    "@types/bun": "latest",
+    "@types/prompts": "^2.4.9",
+    "@types/semver": "^7.5.8",
+    "eslint": "^9.16.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "globby": "^14.0.2",
+    "ora": "^8.1.1",
+    "prompts": "^2.4.2",
+    "semver": "^7.6.3"
+  }
+}

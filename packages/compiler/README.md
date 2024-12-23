@@ -21,3 +21,5 @@ Aside from these, there are two other parts:
 ## Build Output
 The build step creates multiple entrypoints for the app, each for a different command, under the `dist/binaries` directory.
 The resulting code is CJS, so it can be used in most Node.js environments.
+
+Learn more about React Appkit: https://github.com/illberoy/react-appkit

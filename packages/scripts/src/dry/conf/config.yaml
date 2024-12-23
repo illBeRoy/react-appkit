@@ -1,0 +1,14 @@
+storage: /verdaccio/storage
+
+packages:
+  '@react-appkit/*':
+    access: $all
+    publish: $anonymous
+    unpublish: $anonymous
+  'create-react-appkit-app':
+    access: $all
+    publish: $anonymous
+    unpublish: $anonymous
+  '**':
+    access: $all
+    proxy: npm

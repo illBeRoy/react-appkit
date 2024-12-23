@@ -2,6 +2,10 @@
   "name": "@react-appkit/runtime",
   "version": "1.0.0",
   "type": "module",
+  "files": [
+    "src",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./main/app": "./src/main/app.ts",

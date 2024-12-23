@@ -4,6 +4,10 @@
   "module": "index.mjs",
   "main": "index.mjs",
   "type": "module",
+  "files": [
+    "index.mjs",
+    "README.md"
+  ],
   "devDependencies": {
     "@types/bun": "latest",
     "eslint": "^9.14.0"

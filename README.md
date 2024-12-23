@@ -10,8 +10,8 @@ React-AppKit is a robust meta-framework designed to help you quickly create, ite
 
 Key features include:
 - 🚥 File-based routing
-- ⚡️ Effortlessly run code in Node.js using "server" actions
 - 🧰 Manage app features, such as the tray icon and menu, through an intuitive React API
+- ⚡️ Complete isolation of Node.js code from the UI, with a "server" actions-like interface
 - ⏱️ Integrated Hot Module Replacement (HMR) support
 - ⚒️ A toolchain that simplifies the process of building and running your app
 
