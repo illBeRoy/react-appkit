@@ -2,6 +2,13 @@ import { createContext, useContext, useEffect, useRef } from 'react';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from 'electron';
 import { useFirstRender, useUnmount } from '../../nodeRenderer/hooks';
 
+const ToNativeMenuItem = Symbol('ToNativeMenuItem');
+
+interface MenuItemComponent<TProps extends Record<string, never>> {
+  (props: TProps): React.ReactNode;
+  [ToNativeMenuItem]: (props: TProps) => ElectronMenuItem;
+}
+
 export interface MenuProps {
   children: React.ReactNode;
   label?: string;

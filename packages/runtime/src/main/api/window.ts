@@ -28,15 +28,18 @@ export const setTitle = async (title: string) => {
   window.setTitle(title);
 };
 
-export const setSize = async (width: number, height: number) => {
-  const window = useCurrentWindow();
-  window.setSize(width, height);
-};
-
-export const setPosition = async (
-  x: number | `${number}%`,
-  y: number | `${number}%`,
-  origin:
+export const setDimensions = async ({
+  width,
+  height,
+  x,
+  y,
+  origin = 'center',
+}: {
+  width?: number | `${number}%`;
+  height?: number | `${number}%`;
+  x?: number | `${number}%`;
+  y?: number | `${number}%`;
+  origin?:
     | 'top'
     | 'top-left'
     | 'top-right'
@@ -45,42 +48,75 @@ export const setPosition = async (
     | 'bottom-right'
     | 'center'
     | 'center-left'
-    | 'center-right' = 'top-left',
-) => {
+    | 'center-right';
+} = {}) => {
   const window = useCurrentWindow();
   const display = screen.getDisplayMatching(window.getBounds());
-  const [originY, originX] = origin.split('-');
 
-  const point = {
-    x:
-      typeof x === 'string'
-        ? (display.workAreaSize.width * parseFloat(x.replace('%', ''))) / 100
-        : x,
-    y:
-      typeof y === 'string'
-        ? (display.workAreaSize.height * parseFloat(y.replace('%', ''))) / 100
-        : y,
-  };
+  // Set size first if provided
+  if (width !== undefined || height !== undefined) {
+    const actualWidth =
+      width === undefined
+        ? window.getSize()[0]
+        : typeof width === 'string'
+          ? (display.workAreaSize.width * parseFloat(width.replace('%', ''))) /
+            100
+          : width;
 
-  const offset = {
-    x:
-      originX === 'left'
-        ? 0
-        : originX === 'right'
-          ? -window.getSize()[0]
-          : -window.getSize()[0] / 2,
-    y:
-      originY === 'top'
-        ? 0
-        : originY === 'bottom'
-          ? -window.getSize()[0]
-          : -window.getSize()[0] / 2,
-  };
+    const actualHeight =
+      height === undefined
+        ? window.getSize()[1]
+        : typeof height === 'string'
+          ? (display.workAreaSize.height *
+              parseFloat(height.replace('%', ''))) /
+            100
+          : height;
 
-  window.setPosition(
-    Math.round(point.x + offset.x),
-    Math.round(point.y + offset.y),
-  );
+    window.setSize(Math.round(actualWidth), Math.round(actualHeight));
+  }
+
+  // Then set position if provided
+  if (x !== undefined || y !== undefined) {
+    const [originY = 'center', originX = 'center'] = origin.split('-');
+
+    const point = {
+      x:
+        x === undefined
+          ? window.getPosition()[0]
+          : typeof x === 'string'
+            ? (display.workAreaSize.width * parseFloat(x.replace('%', ''))) /
+              100
+            : x,
+      y:
+        y === undefined
+          ? window.getPosition()[1]
+          : typeof y === 'string'
+            ? (display.workAreaSize.height * parseFloat(y.replace('%', ''))) /
+              100
+            : y,
+    };
+
+    const windowSize = window.getSize();
+    const offset = {
+      x:
+        originX === 'left'
+          ? 0
+          : originX === 'right'
+            ? -windowSize[0]
+            : -windowSize[0] / 2,
+      y:
+        originY === 'top'
+          ? 0
+          : originY === 'bottom'
+            ? -windowSize[1]
+            : -windowSize[1] / 2,
+    };
+
+    window.setPosition(
+      Math.round(point.x + offset.x),
+      Math.round(point.y + offset.y),
+    );
+  }
 };
 
 export const centerWindow = async () => {
@@ -126,6 +162,7 @@ export const setMinimizable = async (minimizable: boolean) => {
 export const setMaximizable = async (maximizable: boolean) => {
   const window = useCurrentWindow();
   window.setMaximizable(maximizable);
+  window.setFullScreenable(maximizable);
 };
 
 export const setMenuBarVisibility = async (visible: boolean) => {

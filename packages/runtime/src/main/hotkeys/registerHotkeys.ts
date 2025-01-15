@@ -1,15 +1,9 @@
 import { globalShortcut } from 'electron';
+import { quit } from '../api/app';
 
 const builtinHotkeys: Map<string, () => void | Promise<void>> =
   process.platform === 'darwin'
-    ? new Map([
-        [
-          'CmdOrCtrl+Q',
-          () => {
-            app.quit();
-          },
-        ],
-      ])
+    ? new Map([['CmdOrCtrl+Q', () => quit()]])
     : new Map();
 
 export const setHotkeys = (

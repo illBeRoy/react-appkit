@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { RendererProcessProvider } from './RendererProcessProvider';
 import {
   createHashRouter,
@@ -77,5 +77,5 @@ export const render = (options: RenderOptions) => {
     );
   }
 
-  return ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+  return createRoot(document.getElementById('root')!).render(<App />);
 };
