@@ -1,27 +1,30 @@
-import { createContext, useContext, useEffect, useRef } from 'react';
+import {
+  Children,
+  createContext,
+  useContext,
+  useEffect,
+  type ReactNode,
+} from 'react';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from 'electron';
-import { useFirstRender, useUnmount } from '../../nodeRenderer/hooks';
 
-const ToNativeMenuItem = Symbol('ToNativeMenuItem');
+export const MenuContext = createContext<{
+  isInMenu: boolean;
+  isInRootMenu: boolean;
+  updateRootMenu?: (menu: ElectronMenu | null) => void;
+}>({
+  isInMenu: false,
+  isInRootMenu: false,
+});
 
-interface MenuItemComponent<TProps extends Record<string, never>> {
-  (props: TProps): React.ReactNode;
-  [ToNativeMenuItem]: (props: TProps) => ElectronMenuItem;
-}
+export const useIsInMenu = () => {
+  const context = useContext(MenuContext);
 
-export interface MenuProps {
-  children: React.ReactNode;
-  label?: string;
-  enabled?: boolean;
-}
+  if (!context.isInMenu) {
+    throw new MenuContextError();
+  }
 
-interface MenuContext {
-  append: (item: ElectronMenuItem) => void;
-  remove: (id: string) => void;
-  modify: (id: string, item: ElectronMenuItem) => void;
-}
-
-const MenuContext = createContext<MenuContext | null>(null);
+  return context.isInMenu;
+};
 
 export interface RootMenuProviderProps {
   children: React.ReactNode;
@@ -32,134 +35,88 @@ export const RootMenuProvider = ({
   children,
   onRootMenuChange,
 }: RootMenuProviderProps) => {
-  const setRootMenuFromMenuItem = (item: ElectronMenuItem) => {
-    if (item.type !== 'submenu' || !item.submenu) {
-      throw new MenuItemOutsideOfMenuError();
-    }
-
-    onRootMenuChange(item.submenu);
-  };
-
-  const append = (item: ElectronMenuItem) => {
-    setRootMenuFromMenuItem(item);
-  };
-
-  const remove = () => {
-    onRootMenuChange(null);
-  };
-
-  const modify = (_id: string, item: ElectronMenuItem) => {
-    setRootMenuFromMenuItem(item);
-  };
-
   return (
-    <MenuContext.Provider value={{ append, remove, modify }}>
+    <MenuContext.Provider
+      value={{
+        isInRootMenu: true,
+        isInMenu: false,
+        updateRootMenu: onRootMenuChange,
+      }}
+    >
       {children}
     </MenuContext.Provider>
   );
 };
 
-const useParentMenu = (): MenuContext => {
-  const context = useContext(MenuContext);
+export interface MenuProps {
+  children: React.ReactNode;
+  label?: string;
+  enabled?: boolean;
+}
 
-  if (!context) {
-    throw new MenuContextError();
+export const ToNativeMenuItem = Symbol('ToNativeMenuItem');
+
+export interface MenuItemComponent<TProps> {
+  (props: TProps): React.ReactNode;
+  [ToNativeMenuItem]: (props: TProps) => ElectronMenuItem;
+}
+
+export const Menu: MenuItemComponent<MenuProps> = ({ children }) => {
+  const { isInMenu, isInRootMenu, updateRootMenu } = useContext(MenuContext);
+
+  if (!isInRootMenu && !isInMenu) {
+    throw new MenuItemOutsideOfMenuError();
   }
 
-  return context;
-};
-
-export const Menu = ({ children, label = '', enabled = true }: MenuProps) => {
-  const id = useRef(crypto.randomUUID());
-  const parentMenu = useParentMenu();
-  const menu = useRef(new ElectronMenu());
-
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'submenu',
-        label,
-        enabled,
-        submenu: menu.current,
-      }),
-    );
-  });
-
   useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'submenu',
-        label,
-        enabled,
-        submenu: menu.current,
-      }),
-    );
-  }, [label, enabled]);
+    if (isInRootMenu) {
+      const menu = Menu[ToNativeMenuItem]({
+        children,
+      });
 
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
-
-  const append = (item: ElectronMenuItem) => {
-    menu.current.append(item);
-  };
-
-  const remove = (itemId: string) => {
-    const newMenu = new ElectronMenu();
-
-    menu.current.items.forEach((item) => {
-      if (item.id !== itemId) {
-        newMenu.append(item);
-      }
-    });
-
-    menu.current = newMenu;
-
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'submenu',
-        label,
-        enabled,
-        submenu: newMenu,
-      }),
-    );
-  };
-
-  const modify = (itemId: string, modifiedItem: ElectronMenuItem) => {
-    const newMenu = new ElectronMenu();
-
-    menu.current.items.forEach((item) => {
-      if (item.id === itemId) {
-        newMenu.append(modifiedItem);
-      } else {
-        newMenu.append(item);
-      }
-    });
-
-    menu.current = newMenu;
-
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'submenu',
-        label,
-        enabled,
-        submenu: newMenu,
-      }),
-    );
-  };
+      updateRootMenu!(menu.submenu!);
+    }
+  }, [isInRootMenu, updateRootMenu, children]);
 
   return (
-    <MenuContext.Provider value={{ append, remove, modify }}>
+    <MenuContext.Provider
+      value={{
+        isInMenu: true,
+        isInRootMenu: false,
+      }}
+    >
       {children}
     </MenuContext.Provider>
   );
+};
+
+Menu[ToNativeMenuItem] = (props) => {
+  console.log('Menu ToNativeMenuItem:', { props });
+  const electronMenu = new ElectronMenu();
+
+  const childrenOfMenuContext: ReactNode = // @ts-expect-error :\ well
+    Children.toArray(props.children)[0].props.children;
+
+  Children.forEach(childrenOfMenuContext, (child) => {
+    if (
+      child &&
+      typeof child === 'object' &&
+      'type' in child &&
+      child.type &&
+      child.type[ToNativeMenuItem] &&
+      typeof child.type[ToNativeMenuItem] === 'function'
+    ) {
+      // @ts-expect-error I don't feel like fighting with the type checker here. this is a private symbol and it's not going to be used outside of this file.
+      electronMenu.append(child.type[ToNativeMenuItem](child.props));
+    }
+  });
+
+  return new ElectronMenuItem({
+    type: 'submenu',
+    label: props.label,
+    enabled: props.enabled ?? true,
+    submenu: electronMenu,
+  });
 };
 
 export interface MenuButtonItemProps {
@@ -168,44 +125,19 @@ export interface MenuButtonItemProps {
   onClick?: () => void;
 }
 
-const MenuButtonItem = ({
-  label,
-  enabled = true,
-  onClick = () => {},
-}: MenuButtonItemProps) => {
-  const id = useRef(crypto.randomUUID());
-  const parentMenu = useParentMenu();
-
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'normal',
-        label,
-        enabled,
-        click: onClick,
-      }),
-    );
-  });
-
-  useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'normal',
-        label,
-        enabled,
-        click: onClick,
-      }),
-    );
-  }, [label, enabled, onClick]);
-
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
-
+const MenuButtonItem: MenuItemComponent<MenuButtonItemProps> = () => {
+  useIsInMenu();
   return null;
+};
+
+MenuButtonItem[ToNativeMenuItem] = (props) => {
+  console.log('MenuButtonItem ToNativeMenuItem:', { props });
+  return new ElectronMenuItem({
+    type: 'normal',
+    label: props.label,
+    enabled: props.enabled ?? true,
+    click: props.onClick ?? (() => {}),
+  });
 };
 
 export interface MenuCheckboxItemProps {
@@ -215,47 +147,20 @@ export interface MenuCheckboxItemProps {
   onClick?: () => void;
 }
 
-const MenuCheckboxItem = ({
-  label,
-  enabled = true,
-  checked = false,
-  onClick = () => {},
-}: MenuCheckboxItemProps) => {
-  const id = useRef(crypto.randomUUID());
-  const parentMenu = useParentMenu();
-
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'checkbox',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  });
-
-  useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'checkbox',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  }, [label, enabled, onClick]);
-
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
-
+const MenuCheckboxItem: MenuItemComponent<MenuCheckboxItemProps> = () => {
+  useIsInMenu();
   return null;
+};
+
+MenuCheckboxItem[ToNativeMenuItem] = (props) => {
+  console.log('MenuCheckboxItem ToNativeMenuItem:', { props });
+  return new ElectronMenuItem({
+    type: 'checkbox',
+    label: props.label,
+    enabled: props.enabled ?? true,
+    checked: props.checked ?? false,
+    click: props.onClick ?? (() => {}),
+  });
 };
 
 export interface MenuRadioItemProps {
@@ -265,64 +170,30 @@ export interface MenuRadioItemProps {
   onClick?: () => void;
 }
 
-const MenuRadioItem = ({
-  label,
-  enabled = true,
-  checked = false,
-  onClick = () => {},
-}: MenuRadioItemProps) => {
-  const id = useRef(crypto.randomUUID());
-  const parentMenu = useParentMenu();
-
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'radio',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  });
-
-  useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'radio',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  }, [label, enabled, onClick]);
-
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
-
+const MenuRadioItem: MenuItemComponent<MenuRadioItemProps> = () => {
+  useIsInMenu();
   return null;
 };
 
-const MenuSeparatorItem = () => {
-  const id = useRef(crypto.randomUUID());
-  const parentMenu = useParentMenu();
-
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({ id: id.current, type: 'separator' }),
-    );
+MenuRadioItem[ToNativeMenuItem] = (props) => {
+  console.log('MenuRadioItem ToNativeMenuItem:', { props });
+  return new ElectronMenuItem({
+    type: 'radio',
+    label: props.label,
+    enabled: props.enabled ?? true,
+    checked: props.checked ?? false,
+    click: props.onClick ?? (() => {}),
   });
+};
 
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
-
+const MenuSeparatorItem: MenuItemComponent<Record<string, never>> = () => {
+  useIsInMenu();
   return null;
+};
+
+MenuSeparatorItem[ToNativeMenuItem] = () => {
+  console.log('MenuSeparatorItem ToNativeMenuItem called');
+  return new ElectronMenuItem({ type: 'separator' });
 };
 
 export class MenuContextError extends Error {

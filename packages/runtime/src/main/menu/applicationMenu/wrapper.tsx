@@ -2,7 +2,6 @@ import { MainProcessGlobalStateProvider } from '../../globalState/MainProcessGlo
 import { createMenuManager } from './menuManager';
 import { EmptyMenu, MenuManagerProvider } from './components';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useFirstRender } from '../../nodeRenderer/hooks';
 import { createForceRenderer } from '../../nodeRenderer/forceRender';
 
 export const wrapApplicationMenu = (RootComponent: React.ComponentType) => {
