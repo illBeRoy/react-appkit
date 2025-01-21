@@ -36,6 +36,9 @@ export const rendererBuilder = (workDir: string) => {
     resolve: {
       dedupe: ['react-router-dom'],
     },
+    optimizeDeps: {
+      include: ['react-dom', 'react-dom/client'],
+    },
   };
 
   async function buildForProduction() {
@@ -53,6 +56,9 @@ export const rendererBuilder = (workDir: string) => {
         hmr: {
           protocol: 'ws',
         },
+      },
+      optimizeDeps: {
+        exclude: ['@react-appkit/sdk'],
       },
     };
 

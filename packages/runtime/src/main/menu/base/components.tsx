@@ -1,13 +1,5 @@
 import { createContext, useContext, useEffect, useRef } from 'react';
 import { Menu as ElectronMenu, MenuItem as ElectronMenuItem } from 'electron';
-import { useFirstRender, useUnmount } from '../../nodeRenderer/hooks';
-
-const ToNativeMenuItem = Symbol('ToNativeMenuItem');
-
-interface MenuItemComponent<TProps extends Record<string, never>> {
-  (props: TProps): React.ReactNode;
-  [ToNativeMenuItem]: (props: TProps) => ElectronMenuItem;
-}
 
 export interface MenuProps {
   children: React.ReactNode;
@@ -16,9 +8,8 @@ export interface MenuProps {
 }
 
 interface MenuContext {
-  append: (item: ElectronMenuItem) => void;
-  remove: (id: string) => void;
-  modify: (id: string, item: ElectronMenuItem) => void;
+  getMenuItemId: () => string;
+  upsertItem: (item: ElectronMenuItem) => void;
 }
 
 const MenuContext = createContext<MenuContext | null>(null);
@@ -32,28 +23,33 @@ export const RootMenuProvider = ({
   children,
   onRootMenuChange,
 }: RootMenuProviderProps) => {
-  const setRootMenuFromMenuItem = (item: ElectronMenuItem) => {
+  const rootMenu = useRef(new ElectronMenu());
+  const updateWasScheduled = useRef(false);
+
+  const updateRootMenuFromChildMenuComponent = (item: ElectronMenuItem) => {
     if (item.type !== 'submenu' || !item.submenu) {
       throw new MenuItemOutsideOfMenuError();
     }
 
-    onRootMenuChange(item.submenu);
-  };
+    rootMenu.current = item.submenu;
 
-  const append = (item: ElectronMenuItem) => {
-    setRootMenuFromMenuItem(item);
-  };
+    if (!updateWasScheduled.current) {
+      updateWasScheduled.current = true;
 
-  const remove = () => {
-    onRootMenuChange(null);
-  };
-
-  const modify = (_id: string, item: ElectronMenuItem) => {
-    setRootMenuFromMenuItem(item);
+      setImmediate(() => {
+        onRootMenuChange(rootMenu.current);
+        updateWasScheduled.current = false;
+      });
+    }
   };
 
   return (
-    <MenuContext.Provider value={{ append, remove, modify }}>
+    <MenuContext.Provider
+      value={{
+        getMenuItemId: () => 'root',
+        upsertItem: updateRootMenuFromChildMenuComponent,
+      }}
+    >
       {children}
     </MenuContext.Provider>
   );
@@ -70,93 +66,63 @@ const useParentMenu = (): MenuContext => {
 };
 
 export const Menu = ({ children, label = '', enabled = true }: MenuProps) => {
-  const id = useRef(crypto.randomUUID());
   const parentMenu = useParentMenu();
-  const menu = useRef(new ElectronMenu());
+  const id = parentMenu.getMenuItemId();
 
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'submenu',
-        label,
-        enabled,
-        submenu: menu.current,
-      }),
-    );
-  });
+  parentMenu.upsertItem(
+    new ElectronMenuItem({
+      id,
+      type: 'submenu',
+      label,
+      enabled,
+      submenu: new ElectronMenu(),
+    }),
+  );
 
-  useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'submenu',
-        label,
-        enabled,
-        submenu: menu.current,
-      }),
-    );
-  }, [label, enabled]);
+  const submenu = useRef(new ElectronMenu());
+  const nextIdForMenuItem = useRef(0);
 
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
+  submenu.current = new ElectronMenu();
+  nextIdForMenuItem.current = 0;
 
-  const append = (item: ElectronMenuItem) => {
-    menu.current.append(item);
+  const getMenuItemIdForChildrenOfThisMenu = () => {
+    const id = nextIdForMenuItem.current;
+    nextIdForMenuItem.current++;
+    return `${id}`;
   };
 
-  const remove = (itemId: string) => {
-    const newMenu = new ElectronMenu();
+  const upsertItemIntoThisMenu = (item: ElectronMenuItem) => {
+    const items = [
+      ...submenu.current.items.filter((i) => i.id !== item.id),
+      item,
+    ];
 
-    menu.current.items.forEach((item) => {
-      if (item.id !== itemId) {
-        newMenu.append(item);
-      }
+    items.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+    submenu.current = new ElectronMenu();
+
+    items.forEach((item) => {
+      submenu.current.append(item);
     });
 
-    menu.current = newMenu;
-
-    parentMenu.modify(
-      id.current,
+    parentMenu.upsertItem(
       new ElectronMenuItem({
-        id: id.current,
+        id,
         type: 'submenu',
         label,
         enabled,
-        submenu: newMenu,
-      }),
-    );
-  };
-
-  const modify = (itemId: string, modifiedItem: ElectronMenuItem) => {
-    const newMenu = new ElectronMenu();
-
-    menu.current.items.forEach((item) => {
-      if (item.id === itemId) {
-        newMenu.append(modifiedItem);
-      } else {
-        newMenu.append(item);
-      }
-    });
-
-    menu.current = newMenu;
-
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'submenu',
-        label,
-        enabled,
-        submenu: newMenu,
+        submenu: submenu.current,
       }),
     );
   };
 
   return (
-    <MenuContext.Provider value={{ append, remove, modify }}>
+    <MenuContext.Provider
+      value={{
+        getMenuItemId: getMenuItemIdForChildrenOfThisMenu,
+        upsertItem: upsertItemIntoThisMenu,
+      }}
+    >
       {children}
     </MenuContext.Provider>
   );
@@ -173,37 +139,18 @@ const MenuButtonItem = ({
   enabled = true,
   onClick = () => {},
 }: MenuButtonItemProps) => {
-  const id = useRef(crypto.randomUUID());
   const parentMenu = useParentMenu();
+  const id = parentMenu.getMenuItemId();
 
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'normal',
-        label,
-        enabled,
-        click: onClick,
-      }),
-    );
-  });
-
-  useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'normal',
-        label,
-        enabled,
-        click: onClick,
-      }),
-    );
-  }, [label, enabled, onClick]);
-
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
+  parentMenu.upsertItem(
+    new ElectronMenuItem({
+      id,
+      type: 'normal',
+      label,
+      enabled,
+      click: onClick,
+    }),
+  );
 
   return null;
 };
@@ -221,39 +168,19 @@ const MenuCheckboxItem = ({
   checked = false,
   onClick = () => {},
 }: MenuCheckboxItemProps) => {
-  const id = useRef(crypto.randomUUID());
   const parentMenu = useParentMenu();
+  const id = parentMenu.getMenuItemId();
 
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'checkbox',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  });
-
-  useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'checkbox',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  }, [label, enabled, onClick]);
-
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
+  parentMenu.upsertItem(
+    new ElectronMenuItem({
+      id,
+      type: 'checkbox',
+      label,
+      enabled,
+      click: onClick,
+      checked,
+    }),
+  );
 
   return null;
 };
@@ -271,56 +198,28 @@ const MenuRadioItem = ({
   checked = false,
   onClick = () => {},
 }: MenuRadioItemProps) => {
-  const id = useRef(crypto.randomUUID());
   const parentMenu = useParentMenu();
+  const id = parentMenu.getMenuItemId();
 
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'radio',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  });
-
-  useEffect(() => {
-    parentMenu.modify(
-      id.current,
-      new ElectronMenuItem({
-        id: id.current,
-        type: 'radio',
-        label,
-        enabled,
-        click: onClick,
-        checked,
-      }),
-    );
-  }, [label, enabled, onClick]);
-
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
+  parentMenu.upsertItem(
+    new ElectronMenuItem({
+      id,
+      type: 'radio',
+      label,
+      enabled,
+      click: onClick,
+      checked,
+    }),
+  );
 
   return null;
 };
 
 const MenuSeparatorItem = () => {
-  const id = useRef(crypto.randomUUID());
   const parentMenu = useParentMenu();
+  const id = parentMenu.getMenuItemId();
 
-  useFirstRender(() => {
-    parentMenu.append(
-      new ElectronMenuItem({ id: id.current, type: 'separator' }),
-    );
-  });
-
-  useUnmount(() => {
-    parentMenu.remove(id.current);
-  });
+  parentMenu.upsertItem(new ElectronMenuItem({ id, type: 'separator' }));
 
   return null;
 };

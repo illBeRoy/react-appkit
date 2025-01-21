@@ -1,0 +1,26 @@
+{
+  "name": "create-react-appkit-app",
+  "main": "dist/index.js",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node --packages external",
+    "run:dry": "mkdir -p .test && cd .test && npm_config_registry=http://localhost:4873 bun run ../src/index.ts"
+  },
+  "devDependencies": {
+    "@react-appkit/eslint-config": "workspace:*",
+    "@types/bun": "latest",
+    "eslint": "^9.17.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "src",
+    "template"
+  ],
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "ora": "^8.1.1",
+    "prompts": "^2.4.2"
+  }
+}

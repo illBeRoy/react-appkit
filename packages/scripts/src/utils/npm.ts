@@ -1,5 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
+import semver from 'semver';
+
 export const NotPublished = Symbol('NotPublished');
 
 export const getVersion = async (
@@ -23,7 +25,7 @@ export const getVersion = async (
     return results;
   }
 
-  return [...results].sort().pop();
+  return [...results].sort((a, b) => semver.compare(a, b)).pop();
 };
 
 export const publish = async (dir: string) => {

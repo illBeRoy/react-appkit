@@ -31,8 +31,8 @@ export const ipcImportPolyfill = (workDir: string): Plugin => ({
     }
   },
   async transform(code, id) {
-    const isCodeFile = ['ts', 'tsx', 'js', 'jsx'].some((ext) =>
-      id.endsWith(`.${ext}`),
+    const isCodeFile = ['ts', 'tsx', 'js', 'jsx', 'mjs', 'mts'].some((ext) =>
+      id.split('?')[0].endsWith(`.${ext}`),
     );
 
     if (!isCodeFile) {

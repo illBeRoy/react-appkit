@@ -1,11 +1,11 @@
-import { getVersion, NotPublished, publish } from './utils/npm';
-import semver from 'semver';
 import fs from 'node:fs/promises';
-import { globby } from 'globby';
 import path from 'node:path';
+import semver from 'semver';
 import chalk from 'chalk';
 import ora from 'ora';
 import prompts from 'prompts';
+import { globby } from 'globby';
+import { getVersion, NotPublished, publish } from './utils/npm';
 
 console.log(chalk.bold.bgWhite(' Preparing to release packages... '));
 console.log();
@@ -92,7 +92,7 @@ const latestVersion = allVersions.reduce((a, b) => {
 const nextVersion =
   latestVersion === NotPublished
     ? `${majorVersion}.0.0`
-    : semver.inc(latestVersion, 'patch');
+    : semver.inc(latestVersion, 'patch')!;
 
 nextVersionLoader.succeed(
   `Version to be published: ${chalk.green.bold(nextVersion)}`,
@@ -147,6 +147,24 @@ await Promise.all(
     pkgJson.version = nextVersion;
     pkgJson.homepage = rootPackageJson.homepage;
     pkgJson.repository = rootPackageJson.repository;
+
+    // update workspace dependencies to point to major version instead of workspace
+    for (const depsMap of [
+      pkgJson.dependencies ?? {},
+      pkgJson.devDependencies ?? {},
+    ]) {
+      for (const [dep, version] of Object.entries(depsMap)) {
+        if (typeof version === 'string' && version.startsWith('workspace:')) {
+          if (!allPublishablePackages.some((p) => p.pkgName === dep)) {
+            throw new Error(
+              `Package "${dep}" is workspace a dependency of ${pkg.pkgName}, but is not publishable (probably set as "private")`,
+            );
+          }
+          depsMap[dep] =
+            `^${semver.major(nextVersion)}.${semver.minor(nextVersion)}.0`;
+        }
+      }
+    }
 
     await fs.writeFile(
       path.join(publishableDir, 'package.json'),

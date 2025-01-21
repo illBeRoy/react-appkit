@@ -11,4 +11,9 @@ packages:
     unpublish: $anonymous
   '**':
     access: $all
-    proxy: npm
+    proxy: npmjs
+
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+

@@ -7,9 +7,8 @@
 import { useContext, createContext, useEffect } from 'react';
 import {
   type WindowHandler,
-  setSize,
   setTitle,
-  setPosition,
+  setDimensions,
   setResizable,
   setMovable,
   setAlwaysOnTop,
@@ -150,59 +149,44 @@ const WindowTitle = ({
 };
 
 export interface WindowSizeProps {
-  width: number;
-  height: number;
+  width: number | `${number}%`;
+  height: number | `${number}%`;
+}
+
+export interface WindowDimensionsProps {
+  width?: number | `${number}%`;
+  height?: number | `${number}%`;
+  x?: number | `${number}%`;
+  y?: number | `${number}%`;
+  origin?: Exclude<Parameters<typeof setDimensions>[0], undefined>['origin'];
 }
 
 /**
- * A component that can be used to set the size of the window.
- * Note that width and height can be defined either in absolute pixels (number), or in percentage relative to the screen size (string).
- * @example
- * ```tsx
- * <Window.Size width={500} height={300} />
- * ```
- *
- * @example
- * ```tsx
- * <Window.Size width="25%" height="25%" />
- * ```
- */
-const WindowSize = ({ width, height }: WindowSizeProps) => {
-  useWindowContext();
-
-  useEffect(() => {
-    setSize(width, height);
-  }, [width, height]);
-
-  return null;
-};
-
-export interface WindowPositionProps {
-  x: number | `${number}%`;
-  y: number | `${number}%`;
-  origin?: Parameters<typeof setPosition>[2];
-}
-
-/**
- * A component that can be used to set the position of the window.
- * Note that x and y can be defined either in absolute pixels (number), or in percentage relative to the screen size (string).
+ * A component that can be used to set the dimensions (size and position) of the window.
+ * Note that width, height, x and y can be defined either in absolute pixels (number), or in percentage relative to the screen size (string).
  * In addition, the "origin" prop can be used to define the anchor point for the window's position.
  * @example
  * ```tsx
- * <Window.Position x={100} y={100} />
+ * <Window.Dimensions width={500} height={300} x={100} y={100} />
  * ```
  *
  * @example
  * ```tsx
- * <Window.Position x="25%" y="25%" origin="top-left" />
+ * <Window.Dimensions width="25%" height="25%" x="25%" y="25%" origin="top-left" />
  * ```
  */
-const WindowPosition = ({ x, y, origin }: WindowPositionProps) => {
+const WindowDimensions = ({
+  width,
+  height,
+  x,
+  y,
+  origin,
+}: WindowDimensionsProps) => {
   useWindowContext();
 
   useEffect(() => {
-    setPosition(x, y, origin);
-  }, [x, y, origin]);
+    setDimensions({ width, height, x, y, origin });
+  }, [width, height, x, y, origin]);
 
   return null;
 };
@@ -380,8 +364,7 @@ export const closeWindow = allowImportingOnlyOnMainProcess(
 );
 
 Window.Title = WindowTitle;
-Window.Size = WindowSize;
-Window.Position = WindowPosition;
+Window.Dimensions = WindowDimensions;
 Window.Resizable = WindowResizable;
 Window.Movable = WindowMovable;
 Window.AlwaysOnTop = WindowAlwaysOnTop;

@@ -1,5 +1,5 @@
 /**
- * @module global
+ 
  * APIs to access the global state.
  * The global state is a store fully shared and synced between the main and renderer processes.
  * This means that all changes to the global state are immediately reflected in every open window, as well as actions, tray, app menu, etc.
@@ -24,6 +24,7 @@ export const useGlobalState = <T>(
   const globalState = useEntireGlobalState();
 
   const setValue = (value: T) => {
+    globalState[key] = value;
     setGlobalState(key, value);
   };
 
