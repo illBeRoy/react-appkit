@@ -5,10 +5,13 @@ export default function DefaultLayout({ children }: LayoutProps) {
   return (
     <>
       <Window>
-        <Window.Title>React Notepad</Window.Title>
+        <Window.Title maximizable={false} minimizable={false}>
+          About
+        </Window.Title>
+        <Window.AlwaysOnTop />
         <Window.Dimensions
-          width={800}
-          height={600}
+          width={500}
+          height={300}
           x="50%"
           y="50%"
           origin="center"

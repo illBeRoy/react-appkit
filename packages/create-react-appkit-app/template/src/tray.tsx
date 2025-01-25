@@ -11,12 +11,21 @@
 import { Tray, TrayMenu, TrayMenuItem } from '@react-appkit/sdk/tray';
 import { quit } from '@react-appkit/sdk/app';
 import glyphPng from './assets/glyph.png';
+import { useGlobalState } from '@react-appkit/sdk/global';
 
 export default function ApplicationTray() {
+  const [text] = useGlobalState<string | null>('text', null);
+
   return (
     <Tray icon={glyphPng}>
       <TrayMenu>
-        <TrayMenuItem.Button label="[[APP_NAME]]" enabled={false} />
+        <TrayMenuItem.Button label="My App" enabled={false} />
+        {typeof text === 'string' && (
+          <TrayMenuItem.Button
+            label={`Length: ${text.length} chars`}
+            enabled={false}
+          />
+        )}
         <TrayMenuItem.Separator />
         <TrayMenuItem.Button label="Quit" onClick={() => quit()} />
       </TrayMenu>

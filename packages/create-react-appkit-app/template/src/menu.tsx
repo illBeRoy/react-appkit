@@ -7,17 +7,43 @@
  * If you find that you don't need a menu, you can delete this file.
  */
 import { ApplicationMenu, Menu, MenuItem } from '@react-appkit/sdk/menu';
-import { alert } from '@react-appkit/sdk/dialog';
+import { createNewWindow } from '@react-appkit/sdk/window';
 import { quit } from '@react-appkit/sdk/app';
+import { useGlobalState } from '@react-appkit/sdk/global';
+import { openTextFile, saveTextFile } from './actions/file';
 
 export default function AppMenu() {
+  const [text, setText] = useGlobalState<string | null>('text', null);
+
   return (
     <ApplicationMenu>
-      <Menu title="File" isMacAppMenu>
+      <Menu title="File">
+        <MenuItem.Button label="New" onClick={() => setText('')} />
         <MenuItem.Button
-          label="About"
-          onClick={() => alert('This is an example app')}
+          label="Open"
+          onClick={async () => {
+            const text = await openTextFile();
+            if (text !== null) {
+              setText(text);
+            }
+          }}
         />
+        <MenuItem.Button
+          label="Save"
+          onClick={async () => {
+            if (text !== null) {
+              await saveTextFile(text);
+            }
+          }}
+        />
+        <MenuItem.Separator />
+        <MenuItem.Button
+          label="Learn More"
+          onClick={() =>
+            createNewWindow('/learnMore', { channel: 'secondaryWindow' })
+          }
+        />
+        <MenuItem.Separator />
         <MenuItem.Button label="Quit" onClick={() => quit()} />
       </Menu>
     </ApplicationMenu>

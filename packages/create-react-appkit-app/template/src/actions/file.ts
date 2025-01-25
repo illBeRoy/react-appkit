@@ -5,7 +5,7 @@
  * Actions can be called from anywhere in your code, including windows.
  */
 import fs from 'node:fs/promises';
-import { showOpenDialog } from '@react-appkit/sdk/dialog';
+import { showOpenDialog, showSaveDialog } from '@react-appkit/sdk/dialog';
 
 export async function openTextFile() {
   const fileOpen = await showOpenDialog({ ext: ['txt'] });
@@ -14,6 +14,14 @@ export async function openTextFile() {
     const content = await fs.readFile(file, 'utf-8');
     return content;
   } else {
-    return 'no file selected';
+    return null;
+  }
+}
+
+export async function saveTextFile(text: string) {
+  const selectedPath = await showSaveDialog({ ext: ['txt'] });
+  if (selectedPath.result === 'ok') {
+    const path = selectedPath.path;
+    await fs.writeFile(path, text);
   }
 }

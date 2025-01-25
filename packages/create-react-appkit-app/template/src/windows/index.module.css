@@ -1,3 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter');
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
 .body {
-  color: red;
+  background-color: #f6f8fc;
+  width: 100dvw;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bodyWithGap {
+  gap: 40px;
+}
+
+.logo {
+  width: 200px;
+}
+
+.explanation {
+  max-width: 450px;
+  text-align: center;
+}
+
+.textarea {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  background: transparent;
+  resize: none;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.bottomBar {
+  width: 100%;
+  height: 30px;
+  flex-shrink: 0;
+  background-color: #dfe2e7;
+  border-top: 1px solid #c4c7cc;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 20px;
+  box-sizing: border-box;
+  font-size: 12px;
 }
