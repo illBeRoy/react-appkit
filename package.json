@@ -7,8 +7,7 @@
     "url": "https://github.com/illBeRoy/react-appkit.git"
   },
   "workspaces": [
-    "packages/*",
-    "examples/*"
+    "packages/*"
   ],
   "devDependencies": {
     "@types/bun": "latest"
