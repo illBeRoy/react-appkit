@@ -6,10 +6,11 @@
  */
 
 import {
-  setGlobalState,
-  getGlobalState,
+  setGlobalState as _setGlobalState,
+  getGlobalState as _getGlobalState,
 } from '@react-appkit/runtime/main/api/global';
-import { useEntireGlobalState } from '@react-appkit/runtime/shared/globalState/reactContext';
+import { useGlobalState as _useGlobalState } from '@react-appkit/runtime/shared/globalState/reactContext';
+import { toGlobalStateValue } from '@react-appkit/runtime/shared/globalState/value';
 
 /**
  * React hook to access the global state.
@@ -17,28 +18,24 @@ import { useEntireGlobalState } from '@react-appkit/runtime/shared/globalState/r
  * @param defaultValueOrFn - The default value or a function to generate the default value.
  * @returns A tuple with the current value and a function to set the value (similar to useState).
  */
-export const useGlobalState = <T>(
-  key: string,
-  defaultValueOrFn: T | (() => T),
-): [value: T, setValue: (value: T) => void] => {
-  const globalState = useEntireGlobalState();
+export const useGlobalState = _useGlobalState;
 
-  const setValue = (value: T) => {
-    globalState[key] = value;
-    setGlobalState(key, value);
-  };
+/**
+ * Get the latest global state value for a given key.
+ * If using from a React component, prefer using the `useGlobalState` hook instead.
+ * @param key - The key to access within the global state.
+ * @returns The value of the global state for the given key, or undefined if the key does not exist.
+ */
+export function getGlobalState<T>(key: string): Promise<T | undefined> {
+  return _getGlobalState(key).then((value) => value?.data as T | undefined);
+}
 
-  if (globalState[key] === undefined) {
-    const defaultValue =
-      typeof defaultValueOrFn === 'function'
-        ? (defaultValueOrFn as () => T)()
-        : defaultValueOrFn;
-
-    setGlobalState(key, defaultValue);
-    return [defaultValue, setValue];
-  }
-
-  return [globalState[key] as T, setValue];
-};
-
-export { getGlobalState, setGlobalState };
+/**
+ * Set the global state value for a given key.
+ * If using from a React component, prefer using the `useGlobalState` hook instead.
+ * @param key - The key to access within the global state.
+ * @param value - The value to set for the given key.
+ */
+export function setGlobalState(key: string, value: unknown): void {
+  _setGlobalState(key, toGlobalStateValue(value));
+}

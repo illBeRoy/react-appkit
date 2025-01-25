@@ -1,6 +1,13 @@
-import { useEffect, useState } from 'react';
-import { getEntireGlobalState } from '@react-appkit/runtime/main/api/global';
-import { GlobalStateContext } from '../shared/globalState/reactContext';
+import { useEffect, useRef, useState } from 'react';
+import {
+  getEntireGlobalState,
+  setGlobalState,
+} from '@react-appkit/runtime/main/api/global';
+import {
+  GlobalStateContext,
+  type GlobalStateContainer,
+} from '../shared/globalState/reactContext';
+import type { GlobalStateValue } from '../shared/globalState/value';
 
 export interface RendererGlobalStateProviderProps {
   children: React.ReactNode;
@@ -11,13 +18,23 @@ export const RendererGlobalStateProvider = ({
   children,
   onReady,
 }: RendererGlobalStateProviderProps) => {
-  const [globalState, setGlobalState] = useState<Record<string, unknown>>({});
+  const globalState = useRef<Record<string, GlobalStateValue | undefined>>({});
+  const listeners = useRef<
+    Record<string, Set<(val: GlobalStateValue) => void>>
+  >({});
+
   const [isGlobalStateReady, setIsGlobalStateReady] = useState(false);
 
   useEffect(() => {
     async function fetchGlobalState() {
-      const globalState = await getEntireGlobalState();
-      setGlobalState(globalState);
+      globalState.current = await getEntireGlobalState();
+
+      Object.entries(listeners.current).forEach(([key, listeners]) => {
+        listeners.forEach((listener) => {
+          listener(globalState.current[key]!);
+        });
+      });
+
       setIsGlobalStateReady(true);
     }
 
@@ -39,8 +56,30 @@ export const RendererGlobalStateProvider = ({
     return null;
   }
 
+  const globalStateContainer: GlobalStateContainer = {
+    hasKey: (key: string) => key in globalState.current,
+    getValue: (key: string) => globalState.current[key],
+    setValue: (key: string, value: GlobalStateValue) => {
+      setGlobalState(key, value);
+    },
+    addListener: (key: string, listener: (val: GlobalStateValue) => void) => {
+      if (!(key in listeners.current)) {
+        listeners.current[key] = new Set();
+      }
+      listeners.current[key].add(listener);
+    },
+    removeListener: (
+      key: string,
+      listener: (val: GlobalStateValue) => void,
+    ) => {
+      if (key in listeners.current) {
+        listeners.current[key].delete(listener);
+      }
+    },
+  };
+
   return (
-    <GlobalStateContext.Provider value={globalState}>
+    <GlobalStateContext.Provider value={globalStateContainer}>
       {children}
     </GlobalStateContext.Provider>
   );

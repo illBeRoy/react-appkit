@@ -18,6 +18,7 @@
     "./renderer/ipcPreloadScript": "./src/renderer/ipcPreloadScript.ts",
     "./renderer/ipcRequirePolyfill": "./src/renderer/ipcRequirePolyfill.ts",
     "./shared/globalState/reactContext": "./src/shared/globalState/reactContext.ts",
+    "./shared/globalState/value": "./src/shared/globalState/value.ts",
     "./shared/config": "./src/shared/config.ts"
   },
   "devDependencies": {
