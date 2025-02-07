@@ -1,6 +1,7 @@
 {
   "name": "@react-appkit/eslint-config",
   "version": "1.0.0",
+  "private": false,
   "module": "index.mjs",
   "main": "index.mjs",
   "type": "module",

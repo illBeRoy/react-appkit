@@ -2,6 +2,7 @@
   "name": "@react-appkit/runtime",
   "version": "1.0.0",
   "type": "module",
+  "private": false,
   "files": [
     "src",
     "README.md"

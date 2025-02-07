@@ -37,7 +37,7 @@ export const publish = async (dir: string) => {
   );
 
   const p = Bun.spawn({
-    cmd: ['npm', 'publish'],
+    cmd: ['npm', 'publish', '--access', 'public'],
     stdio: ['inherit', 'inherit', 'inherit'],
     cwd: dir,
   });

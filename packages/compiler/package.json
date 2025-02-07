@@ -2,6 +2,7 @@
   "name": "@react-appkit/compiler",
   "version": "1.0.0",
   "type": "module",
+  "private": false,
   "scripts": {
     "build": "bun build src/build.ts src/start.ts src/dev.ts src/pack.ts --target node --outdir dist --packages external"
   },
