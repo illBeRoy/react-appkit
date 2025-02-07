@@ -58,9 +58,7 @@ async function main() {
     opts.windowFrameType = appConfig.windowFrameType;
   }
 
-  if (!appConfig.openWindowOnStartup) {
-    opts.openWindowOnStartup = false;
-  }
+  opts.openWindowOnStartup = appConfig.openWindowOnStartup ?? true;
 
   // if hmr files base path was supplied by vite, tell the runtime to watch for changes for dynamic files
   // @ts-expect-error this is defined by vite during build time
