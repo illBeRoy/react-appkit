@@ -25,6 +25,7 @@ export interface AppRuntimeOptions {
   startupFunction?: () => void | Promise<void>;
   singleInstance?: boolean;
   openWindowOnStartup?: boolean;
+  windowFrameType?: 'native' | 'custom';
   rendererDevServerUrl?: string;
   hmr?: {
     userActionsFile: string;
@@ -60,6 +61,8 @@ export function createApp(opts: AppRuntimeOptions) {
       if (opts.rendererDevServerUrl) {
         windowManager.withDevServerUrl(opts.rendererDevServerUrl);
       }
+
+      windowManager.withWindowFrameType(opts.windowFrameType ?? 'native');
 
       const actionsRegistry = createActionsRegistry();
 

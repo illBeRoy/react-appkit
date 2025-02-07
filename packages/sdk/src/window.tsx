@@ -17,6 +17,7 @@ import {
   setClosable,
   setMinimizable,
   setMaximizable,
+  setWindowControlsVisibility,
   show,
   hide,
   createNewWindow as createNewWindowInternal,
@@ -87,6 +88,7 @@ export interface WindowTitleProps {
   closable?: boolean;
   minimizable?: boolean;
   maximizable?: boolean;
+  showControls?: boolean;
 }
 
 /**
@@ -106,6 +108,7 @@ const WindowTitle = ({
   closable,
   minimizable,
   maximizable,
+  showControls,
 }: WindowTitleProps) => {
   useWindowContext();
 
@@ -144,6 +147,12 @@ const WindowTitle = ({
       setMaximizable(true);
     };
   }, [maximizable]);
+
+  useEffect(() => {
+    if (typeof showControls === 'boolean') {
+      setWindowControlsVisibility(showControls);
+    }
+  }, [showControls]);
 
   return null;
 };

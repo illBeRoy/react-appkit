@@ -119,6 +119,11 @@ export const setDimensions = async ({
   }
 };
 
+export const setWindowControlsVisibility = async (visible: boolean) => {
+  const window = useCurrentWindow();
+  window.setWindowButtonVisibility(visible);
+};
+
 export const centerWindow = async () => {
   const window = useCurrentWindow();
   window.center();

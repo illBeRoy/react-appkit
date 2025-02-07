@@ -28,6 +28,12 @@ export const AppConfigSchema = z
         'Whether to open the main window on startup. If false, the app will start in the background. You can still open the main window by calling the "openWindow" action.',
       )
       .optional(),
+    windowFrameType: z
+      .enum(['native', 'custom'])
+      .describe(
+        'Whether windows should use the native frame or, a custom one you can build into your window and layout components',
+      )
+      .optional(),
   })
   .strict();
 

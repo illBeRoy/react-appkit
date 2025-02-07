@@ -54,6 +54,10 @@ async function main() {
     opts.rendererDevServerUrl = __REACT_APPKIT_RENDERER_DEV_SERVER_URL;
   }
 
+  if (appConfig.windowFrameType) {
+    opts.windowFrameType = appConfig.windowFrameType;
+  }
+
   // if hmr files base path was supplied by vite, tell the runtime to watch for changes for dynamic files
   // @ts-expect-error this is defined by vite during build time
   if (typeof __HMR_FILES_BASE_PATH === 'string') {

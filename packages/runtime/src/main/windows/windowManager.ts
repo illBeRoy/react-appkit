@@ -19,6 +19,7 @@ export class NoWindowError extends Error {
 const createWindowManager = () => {
   const channelToWindowId = new Map<string, number>();
   const windowIdToChannel = new Map<number, string | undefined>();
+  let windowFrameType: 'native' | 'custom' = 'native';
   let rendererDevServerUrl: string | undefined;
 
   const openWindow = (
@@ -39,6 +40,7 @@ const createWindowManager = () => {
         height: 600,
         show: false,
         center: true,
+        titleBarStyle: windowFrameType === 'native' ? 'default' : 'hidden',
         webPreferences: {
           preload: path.join(app.getAppPath(), 'dist/preload/index.js'),
           sandbox: false,
@@ -126,7 +128,17 @@ const createWindowManager = () => {
     rendererDevServerUrl = url;
   };
 
-  return { openWindow, getWindow, closeWindow, withDevServerUrl };
+  const withWindowFrameType = (type: 'native' | 'custom') => {
+    windowFrameType = type;
+  };
+
+  return {
+    openWindow,
+    getWindow,
+    closeWindow,
+    withDevServerUrl,
+    withWindowFrameType,
+  };
 };
 
 export const windowManager = createWindowManager();
