@@ -1,6 +1,9 @@
 {
   "name": "create-react-appkit-app",
   "main": "dist/index.js",
+  "bin": {
+    "create-react-appkit-app": "dist/index.js"
+  },
   "private": false,
   "version": "1.0.0",
   "scripts": {
@@ -16,8 +19,8 @@
     "typescript": "^5.0.0"
   },
   "files": [
-    "src",
-    "template"
+    "template",
+    "dist"
   ],
   "dependencies": {
     "chalk": "^5.4.1",

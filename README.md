@@ -327,6 +327,7 @@ Some of the properties are required:
 There are also some optional properties:
 1. `singleInstance`: Whether the app should be a single instance. If true, the app will refocus the existing window instead of opening a new one when the user opens the app more than once.
 2. `openWindowOnStartup`: Whether the app should open the window on startup. If set to false, the app will start in the background; you can still open the window at any point by calling the `createWindow` function.
+3. `windowFrameType`: Whether the windows should use the platform's native frame, or a custom one (meaning that you design the frame as part of your Window or Layout components)
 
 Learn more about the app config: [source](packages/sdk/src/config.ts).
 

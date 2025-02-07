@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import ora from 'ora';
 import prompts from 'prompts';
 import path from 'path';
