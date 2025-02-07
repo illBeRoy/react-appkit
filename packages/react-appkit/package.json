@@ -1,0 +1,24 @@
+{
+  "name": "react-appkit",
+  "version": "1.0.0",
+  "description": "Placeholder package",
+  "private": false,
+  "module": "src/index.ts",
+  "scripts": {
+    "build": "cp ../../README.md ../../logo.png ."
+  },
+  "type": "module",
+  "files": [
+    "src",
+    "README.md",
+    "logo.png"
+  ],
+  "devDependencies": {
+    "@react-appkit/eslint-config": "workspace:*",
+    "@types/bun": "latest",
+    "eslint": "^9.19.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
