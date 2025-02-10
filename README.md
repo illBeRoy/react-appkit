@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="logo.png" alt="logo" width="280" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="logo-darkmode.png">
+    <img src="logo.png" alt="logo" width="280" />
+  </picture>
   <br />
   <br />
   The React meta-framework for rapidly building desktop apps.
